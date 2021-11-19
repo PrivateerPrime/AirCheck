@@ -7,4 +7,5 @@
     <string name="res_thermometer">Thermometer</string>
     <string name="res_hygrometer">Hygrometer</string>
     <string name="res_barometer">Barometer</string>
+    <string name="res_refresh">Refresh</string>
 </resources>
