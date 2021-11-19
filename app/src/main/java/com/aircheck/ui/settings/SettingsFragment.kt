@@ -1,6 +1,8 @@
 package com.aircheck.ui.settings
 
+import android.annotation.SuppressLint
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -8,11 +10,13 @@ import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import com.aircheck.R
 import com.aircheck.databinding.FragmentSettingsBinding
+import com.google.android.material.slider.RangeSlider
 
 class SettingsFragment : Fragment() {
 
-    private lateinit var settingsViewModel: SettingsViewModel
+//    private lateinit var settingsViewModel: SettingsViewModel
     private var _binding: FragmentSettingsBinding? = null
 
     // This property is only valid between onCreateView and
@@ -24,17 +28,45 @@ class SettingsFragment : Fragment() {
             container: ViewGroup?,
             savedInstanceState: Bundle?
     ): View? {
-        settingsViewModel =
-                ViewModelProvider(this).get(SettingsViewModel::class.java)
+//        settingsViewModel =
+//                ViewModelProvider(this).get(SettingsViewModel::class.java)
 
         _binding = FragmentSettingsBinding.inflate(inflater, container, false)
-        val root: View = binding.root
 
-        val textView: TextView = binding.textDashboard
-        settingsViewModel.text.observe(viewLifecycleOwner, Observer {
-            textView.text = it
-        })
-        return root
+//        val textView: TextView = binding.textSearchRange
+//        settingsViewModel.text.observe(viewLifecycleOwner, Observer {
+//            textView.text = it
+//        })
+
+        val rangeSlider: RangeSlider = binding.sliderRange
+        val rangeTextView: TextView = binding.textSearchRange
+
+        //TODO Dodanie listenera powoduje crasha, przy poruszaniu sliderem ???
+
+        rangeSlider.addOnChangeListener {
+                _, _, _ ->
+            val values = rangeSlider.values
+            rangeTextView.text = getString(R.string.res_search_range) + values[1]
+
+        }
+
+//        rangeSlider.addOnSliderTouchListener(object: RangeSlider.OnSliderTouchListener{
+//        @SuppressLint("LongLogTag")
+//        override fun onStartTrackingTouch(slider: RangeSlider) {
+//            val values = rangeSlider.values
+//            Log.i("SliderPreviousValueFrom", values[0].toString())
+//            Log.i("SliderPreviousValue To", values[1].toString())
+//        }
+//
+//        override fun onStopTrackingTouch(slider: RangeSlider) {
+//            val values = rangeSlider.values
+//            Log.i("SliderNewValue From", values[0].toString())
+//            Log.i("SliderNewValue To", values[1].toString())
+//
+//            rangeTextView.text = getString(R.string.res_search_range) + values[1]
+//        }
+//    })
+        return binding.root
     }
 
     override fun onDestroyView() {
