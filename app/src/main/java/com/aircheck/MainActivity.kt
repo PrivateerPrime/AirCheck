@@ -1,6 +1,8 @@
 package com.aircheck
 
+import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import com.google.android.material.bottomnavigation.BottomNavigationView
@@ -63,23 +65,14 @@ class MainActivity : AppCompatActivity() {
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
 
+        // kolejka wysyłań API
+
         val cache = DiskBasedCache(cacheDir, 1024*1024)
         val network = BasicNetwork((HurlStack()))
 
         requestQueue = RequestQueue(cache, network).apply {
             start()
         }
-
-//        val url = "https://api.openweathermap.org/data/2.5/weather?lat=35&lon=39&appid=b06c7b5f09d3a79aa795615537b676c5"
-//
-//        val stringRequest = StringRequest(Request.Method.GET, url,
-//            {
-//                    response -> println(response)
-//            }, {
-//                    error ->  println(error)
-//            }
-//        )
-//        requestQueue.add(stringRequest)
     }
 
 }

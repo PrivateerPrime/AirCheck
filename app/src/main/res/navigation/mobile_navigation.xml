@@ -8,7 +8,7 @@
     <fragment
         android:id="@+id/navigation_home"
         android:name="com.aircheck.ui.home.HomeFragment"
-        android:label="@string/title_home"
+        android:label="@string/res_welcome_string"
         tools:layout="@layout/fragment_home" />
 
     <fragment
@@ -20,6 +20,6 @@
     <fragment
         android:id="@+id/navigation_other"
         android:name="com.aircheck.ui.other.OtherFragment"
-        android:label="@string/title_other"
+        android:label="@string/res_other_installations"
         tools:layout="@layout/fragment_other" />
 </navigation>
