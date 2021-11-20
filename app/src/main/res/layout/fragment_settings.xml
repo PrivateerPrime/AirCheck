@@ -8,16 +8,15 @@
 
     <com.google.android.material.slider.RangeSlider
         android:id="@+id/slider_range"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_width="378dp"
+        android:layout_height="40dp"
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
-        android:stepSize="1.0"
+        android:stepSize="0.1"
         android:valueFrom="0"
-        android:valueTo="24"
+        android:valueTo="50"
         app:haloColor="@color/blue"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/text_search_range"
         tools:ignore="SpeakableTextPresentCheck">
@@ -26,8 +25,8 @@
 
     <TextView
         android:id="@+id/text_search_range"
-        android:layout_width="220dp"
-        android:layout_height="38dp"
+        android:layout_width="190dp"
+        android:layout_height="88dp"
         android:layout_marginTop="72dp"
         android:text="@string/res_search_range"
         android:textAlignment="center"

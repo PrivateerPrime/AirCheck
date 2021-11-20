@@ -13,6 +13,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.aircheck.R
 import com.aircheck.databinding.FragmentSettingsBinding
 import com.google.android.material.slider.RangeSlider
+import java.lang.Exception
 
 class SettingsFragment : Fragment() {
 
@@ -41,12 +42,10 @@ class SettingsFragment : Fragment() {
         val rangeSlider: RangeSlider = binding.sliderRange
         val rangeTextView: TextView = binding.textSearchRange
 
-        //TODO Dodanie listenera powoduje crasha, przy poruszaniu sliderem ???
-
-        rangeSlider.addOnChangeListener {
-                _, _, _ ->
-            val values = rangeSlider.values
-            rangeTextView.text = getString(R.string.res_search_range) + values[1]
+            rangeSlider.addOnChangeListener {
+                    _, _, _ ->
+                val values = rangeSlider.values
+                rangeTextView.text = getString(R.string.res_search_range) + (" ${values[0].toString()} KM")
 
         }
 
