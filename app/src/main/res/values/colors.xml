@@ -10,4 +10,6 @@
     <color name="blue">#394CFD</color>
     <color name="light_blue">#0E26FE</color>
     <color name="background_blue">#7098F6</color>
+    <color name="dark_blue">#0A2681</color>
+    <color name="unselected_blue">#7975F2</color>
 </resources>
