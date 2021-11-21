@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="title_home">PULPIT</string>
+    <string name="title_settings">Ustawienia</string>
+    <string name="label_settings">USTAWIENIA</string>
+    <string name="title_other">INNE</string>
+    <string name="res_welcome_string">Jaka jest dzisiaj pogoda?</string>
+    <string name="res_other_installations">Inne instalcje</string>
+    <string name="res_search_range">Zasięg poszukiwań</string>
+    <string name="res_units">Jednoski</string>
+    <string name="res_language">Język</string>
+</resources>
