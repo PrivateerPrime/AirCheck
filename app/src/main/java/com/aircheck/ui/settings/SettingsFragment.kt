@@ -1,19 +1,14 @@
 package com.aircheck.ui.settings
 
-import android.annotation.SuppressLint
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
 import com.aircheck.R
 import com.aircheck.databinding.FragmentSettingsBinding
 import com.google.android.material.slider.RangeSlider
-import java.lang.Exception
 
 class SettingsFragment : Fragment() {
 
@@ -42,12 +37,16 @@ class SettingsFragment : Fragment() {
         val rangeSlider: RangeSlider = binding.sliderRange
         val rangeTextView: TextView = binding.textSearchRange
 
+        rangeTextView.text = getString(R.string.res_search_range) + (" ${rangeSlider.values[0].toString()} KM")
+
             rangeSlider.addOnChangeListener {
                     _, _, _ ->
                 val values = rangeSlider.values
                 rangeTextView.text = getString(R.string.res_search_range) + (" ${values[0].toString()} KM")
 
         }
+
+        //TODO Dodanie zmiany języka
 
 //        rangeSlider.addOnSliderTouchListener(object: RangeSlider.OnSliderTouchListener{
 //        @SuppressLint("LongLogTag")
