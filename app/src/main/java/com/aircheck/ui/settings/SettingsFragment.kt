@@ -47,6 +47,7 @@ class SettingsFragment : Fragment() {
         }
 
         //TODO Dodanie zmiany języka
+        //https://developer.android.com/training/data-storage/shared-preferences
 
 //        rangeSlider.addOnSliderTouchListener(object: RangeSlider.OnSliderTouchListener{
 //        @SuppressLint("LongLogTag")
