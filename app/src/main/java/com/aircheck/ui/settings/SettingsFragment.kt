@@ -6,13 +6,17 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import com.aircheck.R
 import com.aircheck.databinding.FragmentSettingsBinding
 import com.google.android.material.button.MaterialButtonToggleGroup
 import com.google.android.material.slider.RangeSlider
+import android.content.res.Resources
+import android.util.DisplayMetrics
+import android.widget.Button
+import com.google.android.material.button.MaterialButton
+import java.util.*
 
 class SettingsFragment : Fragment() {
 
@@ -43,66 +47,111 @@ class SettingsFragment : Fragment() {
 
         val rangeSlider: RangeSlider = binding.sliderRange
         val rangeTextView: TextView = binding.textSearchRange
-
-        rangeTextView.text = getString(R.string.res_search_range) + (" ${rangeSlider.values[0].toString()} KM")
-
+        val selectionRange = preferences?.getFloat("SearchRange", 5.0F)
+        rangeTextView.text = getString(R.string.res_search_range) + (" ${selectionRange.toString()} KM")
+        rangeSlider.values = listOf(selectionRange)
             rangeSlider.addOnChangeListener {
                     _, _, _ ->
                 val values = rangeSlider.values
                 rangeTextView.text = getString(R.string.res_search_range) + (" ${values[0].toString()} KM")
-
+                editor?.putFloat("SearchRange", values[0])
+                editor?.apply()
+                Log.i("Range", values[0].toString())
         }
 
-        val units1Button: MaterialButtonToggleGroup = binding.toggleGroupUnits1
-        units1Button.addOnButtonCheckedListener { toggleButton, checkedId, isChecked ->
+        val kmButtonId = binding.buttonKm.id
+        val milButtonId = binding.buttonMil.id
+        val celButtonId = binding.buttonCelsius.id
+        val fahButtonId = binding.buttonFahrenheit.id
+        val polButtonId = binding.buttonPolish.id
+        val engButtonId = binding.buttonEnglish.id
+        val units1Group: MaterialButtonToggleGroup = binding.toggleGroupUnits1
+        val units2Group: MaterialButtonToggleGroup = binding.toggleGroupUnits2
+        val languageGroup: MaterialButtonToggleGroup = binding.toggleGroupLanguage
+        val language = preferences?.getString("Lan", null)
+        units1Group.addOnButtonCheckedListener { _, checkedId, isChecked ->
             if (isChecked){
                 when (checkedId) {
-                    binding.buttonKm.id -> {
+                    kmButtonId -> {
                         editor?.putString("Unit", "Km")
-                        Log.i("UNIT", "KM")
+                        Log.i("UNIT", "Km")
                         editor?.apply()
                     }
-                    binding.buttonMil.id -> {
+                    milButtonId -> {
                         editor?.putString("Unit", "Mil")
                         Log.i("UNIT", "Mil")
                         editor?.apply()
                     }
                 }
-
             }
         }
-        val kmButton: Button = binding.buttonKm
-        val milButton: Button = binding.buttonMil
-        val selection = preferences?.getString("Unit", null)
-        if(selection == "Mil")
-            units1Button.check(milButton.id);
-        else
-            units1Button.check(kmButton.id);
 
-//        editor?.putString("Temp", "Celc")
-//        editor?.putString("Lang", "ENG")
-//        editor?.apply()
+        units2Group.addOnButtonCheckedListener { _, checkedId, isChecked ->
+            if (isChecked){
+                when (checkedId) {
+                    celButtonId -> {
+                        editor?.putString("Temp", "Cel")
+                        Log.i("TEMP", "Cel")
+                        editor?.apply()
+                    }
+                    fahButtonId -> {
+                        editor?.putString("Temp", "Fah")
+                        Log.i("TEMP", "Fah")
+                        editor?.apply()
+                    }
+                }
+            }
+        }
+
+        languageGroup.addOnButtonCheckedListener { _, checkedId, isChecked ->
+            if (isChecked){
+                when (checkedId) {
+                    polButtonId -> {
+                        editor?.putString("Lan", "pl")
+                        Log.i("LAN", "pl")
+                        editor?.apply()
+                    }
+                    engButtonId -> {
+                        editor?.putString("Lan", "en")
+                        Log.i("LAN", "en")
+                        editor?.apply()
+                    }
+                }
+            }
+        }
+
+        val buttonEnglish: MaterialButton = binding.buttonEnglish as MaterialButton
+        val buttonPolish: MaterialButton = binding.buttonPolish as MaterialButton
+        val x = buttonEnglish.isChecked
+        val y = buttonPolish.isChecked
+
+        binding.buttonEnglish.setOnClickListener {
+            if (language != "en")
+                setLocale("en")
+        }
+        binding.buttonPolish.setOnClickListener {
+            if (language != "pl")
+                setLocale("pl")
+        }
+
+        val selectionUnit1 = preferences?.getString("Unit", "Km")
+        val selectionUnit2 = preferences?.getString("Temp", "Cel")
+        val selectionLanguage = preferences?.getString("Lan", "en")
+        if(selectionUnit1 == "Mil")
+            units1Group.check(milButtonId)
+        else
+            units1Group.check(kmButtonId)
+        if(selectionUnit2 == "Fah")
+            units2Group.check(fahButtonId)
+        else
+            units2Group.check(celButtonId)
+        if(selectionLanguage == "pl")
+            languageGroup.check(polButtonId)
+        else
+            languageGroup.check(engButtonId)
 
         //TODO Dodanie zmiany języka
-        //https://developer.android.com/training/data-storage/shared-
-//        https://developer.android.com/guide/topics/ui/settings/use-saved-values
 
-//        rangeSlider.addOnSliderTouchListener(object: RangeSlider.OnSliderTouchListener{
-//        @SuppressLint("LongLogTag")
-//        override fun onStartTrackingTouch(slider: RangeSlider) {
-//            val values = rangeSlider.values
-//            Log.i("SliderPreviousValueFrom", values[0].toString())
-//            Log.i("SliderPreviousValue To", values[1].toString())
-//        }
-//
-//        override fun onStopTrackingTouch(slider: RangeSlider) {
-//            val values = rangeSlider.values
-//            Log.i("SliderNewValue From", values[0].toString())
-//            Log.i("SliderNewValue To", values[1].toString())
-//
-//            rangeTextView.text = getString(R.string.res_search_range) + values[1]
-//        }
-//    })
         return binding.root
     }
 
@@ -110,4 +159,17 @@ class SettingsFragment : Fragment() {
         super.onDestroyView()
         _binding = null
     }
+
+    fun setLocale(lang: String){
+        val res: Resources = requireContext().resources
+        val dm: DisplayMetrics = res.displayMetrics
+        val conf: android.content.res.Configuration = res.configuration
+        conf.setLocale(Locale(lang.lowercase()))
+        res.updateConfiguration(conf, dm)
+
+        val refresh = activity?.intent
+        activity?.finish()
+        startActivity(refresh)
+    }
+
 }
