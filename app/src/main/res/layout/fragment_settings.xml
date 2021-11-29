@@ -35,16 +35,15 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/text_search_range"
-        app:values="@array/slider_array"
         tools:ignore="SpeakableTextPresentCheck">
 
     </com.google.android.material.slider.RangeSlider>
 
     <TextView
         android:id="@+id/text_search_range"
-        android:layout_width="191dp"
-        android:layout_height="59dp"
-        android:layout_marginTop="72dp"
+        android:layout_width="239dp"
+        android:layout_height="72dp"
+        android:layout_marginTop="62dp"
         android:text="@string/res_search_range"
         android:textAlignment="center"
         android:textColor="@color/black"
@@ -55,8 +54,8 @@
 
     <TextView
         android:id="@+id/text_units"
-        android:layout_width="96dp"
-        android:layout_height="39dp"
+        android:layout_width="132dp"
+        android:layout_height="37dp"
         android:layout_marginStart="176dp"
         android:layout_marginTop="8dp"
         android:layout_marginEnd="176dp"
@@ -108,7 +107,6 @@
         android:layout_marginStart="118dp"
         android:layout_marginTop="32dp"
         android:layout_marginEnd="118dp"
-        app:checkedButton="@id/button_celsius"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
