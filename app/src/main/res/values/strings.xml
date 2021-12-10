@@ -20,4 +20,8 @@
     <string name="res_language">Language</string>
     <string name="res_polish" translatable="false">Polski</string>
     <string name="res_english" translatable="false">English</string>
+    <string name="res_restart_title">Restart required</string>
+    <string name="res_restart_text">The app must be restarted</string>
+    <string name="res_cancel">CANCEL</string>
+    <string name="res_accept" translatable="false">OK</string>
 </resources>

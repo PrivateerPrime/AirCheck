@@ -9,4 +9,7 @@
     <string name="res_search_range">Zasięg poszukiwań</string>
     <string name="res_units">Jednoski</string>
     <string name="res_language">Język</string>
+    <string name="res_restart_title">Wymagane ponowne uruchomienie</string>
+    <string name="res_restart_text">Aplikacja musi zostać ponownie uruchomiona</string>
+    <string name="res_cancel">ANULUJ</string>
 </resources>
