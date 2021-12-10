@@ -1,8 +1,10 @@
 package com.aircheck
 
-import android.content.Intent
+import android.content.Context
+import android.content.res.Configuration
+import android.content.res.Resources
 import android.os.Bundle
-import android.util.Log
+import android.util.DisplayMetrics
 import android.view.Menu
 import android.view.MenuItem
 import com.google.android.material.bottomnavigation.BottomNavigationView
@@ -19,6 +21,7 @@ import com.android.volley.toolbox.DiskBasedCache
 import com.android.volley.toolbox.HurlStack
 import com.android.volley.toolbox.StringRequest
 import java.lang.Exception
+import java.util.*
 
 class MainActivity : AppCompatActivity() {
 
@@ -50,11 +53,12 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        if (getPreferences(Context.MODE_PRIVATE).getString("Lan", "en") == "pl")
+            setLocale()
         super.onCreate(savedInstanceState)
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
         val navView: BottomNavigationView = binding.navView
 
         val navController = findNavController(R.id.nav_host_fragment_activity_main)
@@ -75,4 +79,14 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun setLocale() {
+        val locale = Locale("pl")
+        val res: Resources = resources
+        val dm: DisplayMetrics = res.displayMetrics
+        val conf: Configuration = res.configuration
+        conf.locale = locale
+        Locale.setDefault(locale)
+        conf.setLayoutDirection(locale)
+        res.updateConfiguration(conf, dm)
+    }
 }
