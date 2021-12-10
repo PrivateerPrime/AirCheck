@@ -14,8 +14,8 @@ import com.google.android.material.button.MaterialButtonToggleGroup
 import com.google.android.material.slider.RangeSlider
 import android.content.res.Resources
 import android.util.DisplayMetrics
-import android.widget.Button
 import com.google.android.material.button.MaterialButton
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import java.util.*
 
 class SettingsFragment : Fragment() {
@@ -47,13 +47,12 @@ class SettingsFragment : Fragment() {
 
         val rangeSlider: RangeSlider = binding.sliderRange
         val rangeTextView: TextView = binding.textSearchRange
-        val selectionRange = preferences?.getFloat("SearchRange", 5.0F)
-        rangeTextView.text = getString(R.string.res_search_range) + (" ${selectionRange.toString()} KM")
-        rangeSlider.values = listOf(selectionRange)
+        rangeTextView.text = getString(R.string.res_search_range) + (" ${preferences?.getFloat("SearchRange", 5.0F).toString()} ${preferences?.getString("Unit", "Km")}")
+        rangeSlider.values = listOf(preferences?.getFloat("SearchRange", 5.0F))
             rangeSlider.addOnChangeListener {
                     _, _, _ ->
                 val values = rangeSlider.values
-                rangeTextView.text = getString(R.string.res_search_range) + (" ${values[0].toString()} KM")
+                rangeTextView.text = getString(R.string.res_search_range) + (" ${values[0].toString()} ${preferences?.getString("Unit", "Km")}")
                 editor?.putFloat("SearchRange", values[0])
                 editor?.apply()
                 Log.i("Range", values[0].toString())
@@ -76,11 +75,13 @@ class SettingsFragment : Fragment() {
                         editor?.putString("Unit", "Km")
                         Log.i("UNIT", "Km")
                         editor?.apply()
+                        rangeTextView.text = getString(R.string.res_search_range) + (" ${preferences?.getFloat("SearchRange", 5.0F).toString()} ${preferences?.getString("Unit", "Km")}")
                     }
                     milButtonId -> {
                         editor?.putString("Unit", "Mil")
                         Log.i("UNIT", "Mil")
                         editor?.apply()
+                        rangeTextView.text = getString(R.string.res_search_range) + (" ${preferences?.getFloat("SearchRange", 5.0F).toString()} ${preferences?.getString("Unit", "Km")}")
                     }
                 }
             }
@@ -122,16 +123,14 @@ class SettingsFragment : Fragment() {
 
         val buttonEnglish: MaterialButton = binding.buttonEnglish as MaterialButton
         val buttonPolish: MaterialButton = binding.buttonPolish as MaterialButton
-        val x = buttonEnglish.isChecked
-        val y = buttonPolish.isChecked
 
         binding.buttonEnglish.setOnClickListener {
             if (language != "en")
-                setLocale("en")
+                addAlertDialog("en")
         }
         binding.buttonPolish.setOnClickListener {
             if (language != "pl")
-                setLocale("pl")
+                addAlertDialog("pl")
         }
 
         val selectionUnit1 = preferences?.getString("Unit", "Km")
@@ -150,8 +149,6 @@ class SettingsFragment : Fragment() {
         else
             languageGroup.check(engButtonId)
 
-        //TODO Dodanie zmiany języka
-
         return binding.root
     }
 
@@ -160,7 +157,7 @@ class SettingsFragment : Fragment() {
         _binding = null
     }
 
-    fun setLocale(lang: String){
+    private fun setLocale(lang: String) {
         val res: Resources = requireContext().resources
         val dm: DisplayMetrics = res.displayMetrics
         val conf: android.content.res.Configuration = res.configuration
@@ -170,6 +167,22 @@ class SettingsFragment : Fragment() {
         val refresh = activity?.intent
         activity?.finish()
         startActivity(refresh)
+    }
+
+    private fun addAlertDialog(lang: String) {
+        MaterialAlertDialogBuilder(requireContext())
+            .setTitle(R.string.res_restart_title)
+            .setMessage(R.string.res_restart_text)
+            .setNeutralButton(R.string.res_cancel) { dialog, which ->
+                if (lang == "pl")
+                    binding.toggleGroupLanguage.check(binding.buttonEnglish.id)
+                else
+                    binding.toggleGroupLanguage.check(binding.buttonPolish.id)
+            }
+            .setPositiveButton(R.string.res_accept) { dialog, which ->
+                setLocale(lang)
+            }
+            .show()
     }
 
 }
