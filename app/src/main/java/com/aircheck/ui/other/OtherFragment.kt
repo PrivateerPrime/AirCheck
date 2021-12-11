@@ -30,10 +30,22 @@ class OtherFragment : Fragment() {
         _binding = FragmentOtherBinding.inflate(inflater, container, false)
         val root: View = binding.root
 
-        val textView: TextView = binding.textOther
-        otherViewModel.text.observe(viewLifecycleOwner, Observer {
-            textView.text = it
-        })
+        val pollution1: TextView = binding.textOtherPollution1
+        val pollution2: TextView = binding.textOtherPollution2
+        val pollution3: TextView = binding.textOtherPollution3
+
+        pollution1.text = "11 µg/m³"
+        pollution2.text = "12 µg/m³"
+        pollution3.text = "13 µg/m³"
+
+        val weather1: TextView = binding.textOtherWeather1
+        val weather2: TextView = binding.textOtherWeather2
+        val weather3: TextView = binding.textOtherWeather3
+
+        weather1.text = "11 °C\n61%\n1021 hPa"
+        weather2.text = "12 °C\n62%\n1022 hPa"
+        weather3.text = "13 °C\n63%\n1023 hPa"
+
         return root
     }
 
