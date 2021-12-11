@@ -5,6 +5,7 @@ import android.content.res.Configuration
 import android.content.res.Resources
 import android.os.Bundle
 import android.util.DisplayMetrics
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import com.google.android.material.bottomnavigation.BottomNavigationView
@@ -22,11 +23,12 @@ import com.android.volley.toolbox.HurlStack
 import com.android.volley.toolbox.StringRequest
 import java.lang.Exception
 import java.util.*
+import kotlin.collections.HashMap
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
-    private lateinit var requestQueue: RequestQueue;
+    private lateinit var requestQueue: RequestQueue
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.top_app_bar, menu)
@@ -35,19 +37,26 @@ class MainActivity : AppCompatActivity() {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         val id = item.itemId
-        val url = "https://api.openweathermap.org/data/2.5/weather?lat=35&lon=39&appid=b06c7b5f09d3a79aa795615537b676c5"
-        val stringRequest = StringRequest(Request.Method.GET, url,
+        val url = "https://airapi.airly.eu/v2/meta/indexes"
+        val stringRequest = object: StringRequest(Request.Method.GET, url,
             {
-                    response -> print(response)
+                    response -> Log.i("resp", response)
             }, {
-                    error ->  print(error)
+                    error ->  Log.e("resp", error.toString())
             }
         )
+        {
+            override fun getHeaders(): MutableMap<String, String> {
+                val headers = HashMap<String, String>()
+                headers["apikey"] = "hILP4tnLsNjzv3Y1QHu1nG3TH1ehLpQ5"
+                return headers
+            }
+        }
         try {
             requestQueue.add(stringRequest)
         }
         catch (e: Exception) {
-            print(e.stackTrace)
+            Log.e("err", e.printStackTrace().toString())
         }
         return super.onOptionsItemSelected(item)
     }
