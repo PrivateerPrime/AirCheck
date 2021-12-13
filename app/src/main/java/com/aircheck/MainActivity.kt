@@ -40,13 +40,17 @@ class MainActivity : AppCompatActivity() {
         return super.onCreateOptionsMenu(menu)
     }
 
-    /* TODO Dodać jeszcze jedno zapytanie API zwracające temperaturę, wilgotność, ciśnienie na następne 24 godziny
+    /*
+       TODO Dodać jeszcze jedno zapytanie API zwracające temperaturę, wilgotność, ciśnienie na następne 24 godziny
        TODO Dodać GPS
        TODO Dodać tekst pokazujący godzinę/datę/czas od ostatniej synhcronizacji
-       TODO Dodać obsługę maxDistanceKM (linia49)
     */
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        val url = "https://airapi.airly.eu/v2/measurements/nearest?lat=50.062006&lng=19.940984&maxDistanceKM=5"
+        val maxDistanceKM: String = if (preferences.getString("Unit", "Km") == "Km")
+            preferences.getFloat("searchRange", 5.0F).toString()
+        else
+            (preferences.getFloat("searchRange", 5.0F)*1.609344).toString()
+        val url = "https://airapi.airly.eu/v2/measurements/nearest?lat=50.062006&lng=19.940984&maxDistanceKM=${maxDistanceKM}"
         val stringRequest = object: StringRequest(Method.GET, url,
             {
                     response -> Log.i("resp", response)
@@ -132,9 +136,15 @@ class MainActivity : AppCompatActivity() {
             it++
         }
 
-        findViewById<TextView>(R.id.text_pollution).text = indexPollution.toString() + " µg/m³"
-        findViewById<TextView>(R.id.text_temperature).text = indexTemperature.toString() + " °C"
-        findViewById<TextView>(R.id.text_humidity).text = indexHumidity.toString() + "%"
-        findViewById<TextView>(R.id.text_pressure).text = indexPressure.toString() + " hPa"
+        val hour = preferences.getFloat("forecastRange", 0F).toInt()
+        val tempPollution = preferences.getString("pollutionMain$hour", "NODATA")
+        val tempTemperature = preferences.getString("temperatureMain$hour", "NODATA")
+        val tempHumidity = preferences.getString("humidityMain0$hour", "NODATA")
+        val tempPressure = preferences.getString("pressureMain$hour", "NODATA")
+
+        findViewById<TextView>(R.id.text_pollution).text = tempPollution
+        findViewById<TextView>(R.id.text_temperature).text = tempTemperature
+        findViewById<TextView>(R.id.text_humidity).text = tempHumidity
+        findViewById<TextView>(R.id.text_pressure).text = tempPressure
     }
 }
