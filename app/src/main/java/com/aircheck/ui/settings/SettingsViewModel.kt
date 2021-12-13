@@ -3,8 +3,6 @@ package com.aircheck.ui.settings
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.aircheck.R
-import com.google.android.material.slider.RangeSlider
 
 class SettingsViewModel : ViewModel() {
 
