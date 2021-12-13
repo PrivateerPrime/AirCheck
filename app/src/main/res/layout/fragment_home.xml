@@ -7,7 +7,7 @@
     tools:context=".ui.home.HomeFragment">
 
     <TextView
-        android:id="@+id/text_home"
+        android:id="@+id/text_pollution"
         android:layout_width="303dp"
         android:layout_height="103dp"
         android:layout_marginTop="24dp"
@@ -26,10 +26,10 @@
         android:background="?android:attr/listDivider"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/text_home" />
+        app:layout_constraintTop_toBottomOf="@+id/text_pollution" />
 
     <TextView
-        android:id="@+id/text_home2"
+        android:id="@+id/text_temperature"
         android:layout_width="313dp"
         android:layout_height="66dp"
         android:layout_marginTop="32dp"
@@ -46,11 +46,11 @@
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:background="?android:attr/listDivider"
-        app:layout_constraintTop_toBottomOf="@+id/text_home2"
+        app:layout_constraintTop_toBottomOf="@+id/text_temperature"
         tools:layout_editor_absoluteX="0dp" />
 
     <TextView
-        android:id="@+id/text_home3"
+        android:id="@+id/text_humidity"
         android:layout_width="340dp"
         android:layout_height="66dp"
         android:layout_marginTop="32dp"
@@ -67,11 +67,11 @@
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:background="?android:attr/listDivider"
-        app:layout_constraintTop_toBottomOf="@+id/text_home3"
+        app:layout_constraintTop_toBottomOf="@+id/text_humidity"
         tools:layout_editor_absoluteX="0dp" />
 
     <TextView
-        android:id="@+id/text_home4"
+        android:id="@+id/text_pressure"
         android:layout_width="308dp"
         android:layout_height="66dp"
         android:layout_marginTop="32dp"
@@ -87,7 +87,7 @@
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:background="?android:attr/listDivider"
-        app:layout_constraintTop_toBottomOf="@+id/text_home4"
+        app:layout_constraintTop_toBottomOf="@+id/text_pressure"
         tools:layout_editor_absoluteX="0dp" />
 
     <ImageView
@@ -121,7 +121,7 @@
         android:layout_marginBottom="16dp"
         android:contentDescription="@string/res_hygrometer"
         android:src="@drawable/icons8_humidity_64"
-        app:layout_constraintBottom_toBottomOf="@+id/text_home3"
+        app:layout_constraintBottom_toBottomOf="@+id/text_humidity"
         app:layout_constraintStart_toStartOf="parent" />
 
     <ImageView
@@ -134,7 +134,7 @@
         app:layout_constraintBottom_toTopOf="@+id/divider4"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <com.google.android.material.slider.Slider
+    <com.google.android.material.slider.RangeSlider
         android:id="@+id/slider_home"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -151,6 +151,6 @@
         app:layout_constraintTop_toBottomOf="@+id/divider4"
         tools:ignore="SpeakableTextPresentCheck">
 
-    </com.google.android.material.slider.Slider>
+    </com.google.android.material.slider.RangeSlider>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
