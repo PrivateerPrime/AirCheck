@@ -174,13 +174,13 @@ class SettingsFragment : Fragment() {
         MaterialAlertDialogBuilder(requireContext())
             .setTitle(R.string.res_restart_title)
             .setMessage(R.string.res_restart_text)
-            .setNeutralButton(R.string.res_cancel) { dialog, which ->
+            .setNeutralButton(R.string.res_cancel) { _, _ ->
                 if (lang == "pl")
                     binding.toggleGroupLanguage.check(binding.buttonEnglish.id)
                 else
                     binding.toggleGroupLanguage.check(binding.buttonPolish.id)
             }
-            .setPositiveButton(R.string.res_accept) { dialog, which ->
+            .setPositiveButton(R.string.res_accept) { _, _ ->
                 setLocale(lang)
             }
             .show()
