@@ -12,4 +12,10 @@
     <string name="res_restart_title">Wymagane ponowne uruchomienie</string>
     <string name="res_restart_text">Aplikacja musi zostać ponownie uruchomiona</string>
     <string name="res_cancel">ANULUJ</string>
+    <string name="res_location_needed">Wymagana zgoda na lokalizację</string>
+    <string name="res_location_message">Ta aplikacja wymaga przetwarzania lokazliacji, potwierdź aby korzystać z aplikacji</string>
+    <string name="res_location_no_permissions">Brak zgody</string>
+    <string name="res_location_no_permissions_message">Ta aplikacja wymaga przetwarzania lokazliacji. Włącz je w ustawieniach aplikacji (Android)</string>
+    <string name="res_no_location">Nie znaleniono lokalizacji</string>
+    <string name="res_no_location_message">Nie znaleniono lokalizacji, sprawdź sygnał GPS i spróbuj ponownie</string>
 </resources>
