@@ -246,7 +246,6 @@ class MainActivity : AppCompatActivity() {
                         10F,
                         locationListener
                     )
-                    getData()
                 }
                 else {
                     AlertDialog.Builder(this)
