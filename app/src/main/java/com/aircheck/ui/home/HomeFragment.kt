@@ -40,12 +40,14 @@ class HomeFragment : Fragment() {
         val textTemperature: TextView = binding.textTemperature
         val textHumidity: TextView = binding.textHumidity
         val textPressure: TextView = binding.textPressure
+        val textTime: TextView = binding.textTime
 
         val hour = preferences?.getFloat("forecastRange", 0F)?.toInt()
         textPollution.text = preferences?.getString("pollutionMain$hour", "NODATA")
         textTemperature.text = preferences?.getString("temperatureMain$hour", "NODATA")
         textHumidity.text = preferences?.getString("humidityMain$hour", "NODATA")
         textPressure.text = preferences?.getString("pressureMain$hour", "NODATA")
+        textTime.text = preferences?.getString("time$hour", "NODATA")
 
         val rangeSlider: RangeSlider = binding.sliderHome
         rangeSlider.values = listOf(preferences?.getFloat("forecastRange", 0F))
@@ -59,6 +61,7 @@ class HomeFragment : Fragment() {
             textTemperature.text = preferences?.getString("temperatureMain$hourTemp", "NODATA")
             textHumidity.text = preferences?.getString("humidityMain$hourTemp", "NODATA")
             textPressure.text = preferences?.getString("pressureMain$hourTemp", "NODATA")
+            textTime.text = preferences?.getString("time$hourTemp", "NODATA")
         }
         return binding.root
     }
