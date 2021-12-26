@@ -18,4 +18,14 @@
     <string name="res_location_no_permissions_message">Ta aplikacja wymaga przetwarzania lokazliacji. Włącz je w ustawieniach aplikacji (Android)</string>
     <string name="res_no_location">Nie znaleniono lokalizacji</string>
     <string name="res_no_location_message">Nie znaleniono lokalizacji, sprawdź sygnał GPS i spróbuj ponownie</string>
+    <string name="res_sync_correct">Dane synchronizowano pomyślnie</string>
+    <string name="res_sync_error">Wystąpił błąd, spróbuj ponownie później</string>
+    <string name="res_forecast_info">Prognoza danych</string>
+    <string name="res_Monday">Poniedziałek</string>
+    <string name="res_Tuesday">Wtorek</string>
+    <string name="res_Wednesday">Środa</string>
+    <string name="res_Thursday">Czwartek</string>
+    <string name="res_Friday">Piątek</string>
+    <string name="res_Saturday">Sobota</string>
+    <string name="res_Sunday">Niedziela</string>
 </resources>
