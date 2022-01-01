@@ -52,14 +52,13 @@ class MainActivity : AppCompatActivity() {
 
     /*
        TODO GPS nie działa prawidłowo na emulatorze, testować tylko na FIZYCZNEJ maszynie
-       TODO Dodać tekst pokazujący godzinę/datę/czas od ostatniej synhcronizacji
        TODO Dodać oznaczenie paska predykcji na dole ekranu
-       TODO Oznaczenie farenheit
        TODO Poprawić dzień tygodnia w języku polskim
        TODO Zmiana others na inne wskaźniki (podobna lista elementów z innymi parametrami, c0, nh3, so2; mogą to
        TODO być inne dane atmosferyczne
        TODO Refresh w innych widokach powoduje exception. Nie można wywyoływać tej funkcji z innych widoków
        TODO trzeba albo to naprawić, albo usunąć przicsk z innych widoków (https://stackoverflow.com/questions/48062260/add-an-actionbar-for-each-fragment)
+       TODO Poprawa settings
     */
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
 
@@ -117,7 +116,7 @@ class MainActivity : AppCompatActivity() {
         val temperatureValue = metricsData.current.temp
         val humidityValue = metricsData.current.humidity
         val pressureValue = metricsData.current.pressure
-        editor.putString("temperatureMain0", "$temperatureValue °C")
+        editor.putString("temperatureMain0", "$temperatureValue")
         editor.putString("humidityMain0", "$humidityValue%")
         editor.putString("pressureMain0", "$pressureValue hPa")
         editor.apply()
@@ -129,18 +128,26 @@ class MainActivity : AppCompatActivity() {
             val temperatureValueForecast = metricsData.hourly[iter].temp
             val humidityValueForecast = metricsData.hourly[iter].humidity
             val pressureValueForecast = metricsData.hourly[iter].pressure
-            editor.putString(temperatureString, "$temperatureValueForecast °C")
+            editor.putString(temperatureString, "$temperatureValueForecast")
             editor.putString(humidityString, "$humidityValueForecast%")
             editor.putString(pressureString, "$pressureValueForecast hPa")
             editor.apply()
         }
 
         val hour = preferences.getFloat("forecastRange", 0F).toInt()
-        val temperature = preferences.getString("temperatureMain$hour", "NODATA")
+        var temperature = preferences.getString("temperatureMain$hour", "0.0")?.toFloat()
+        if (preferences.getString("Temp", "Cel") == "Fah") {
+            temperature = ((temperature!! * 9.0/5.0) + 32.0).toFloat()
+        }
+        val temperatureText = temperature.toString() + if (preferences.getString("Temp", "Cel") == "Cel")
+            getString(R.string.res_celsius)
+        else
+            getString(R.string.res_fahrenheit)
+
         val humidity = preferences.getString("humidityMain$hour", "NODATA")
         val pressure = preferences.getString("pressureMain$hour", "NODATA")
 
-        findViewById<TextView>(R.id.text_temperature).text = temperature
+        findViewById<TextView>(R.id.text_temperature).text = temperatureText
         findViewById<TextView>(R.id.text_humidity).text = humidity
         findViewById<TextView>(R.id.text_pressure).text = pressure
 
@@ -334,7 +341,7 @@ class MainActivity : AppCompatActivity() {
         val res: Resources = resources
         val dm: DisplayMetrics = res.displayMetrics
         val conf: Configuration = res.configuration
-        conf.locale = locale
+        conf.setLocale(locale)
         Locale.setDefault(locale)
         conf.setLayoutDirection(locale)
         res.updateConfiguration(conf, dm)
