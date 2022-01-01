@@ -45,11 +45,6 @@ class MainActivity : AppCompatActivity() {
     private lateinit var preferences: SharedPreferences
     private lateinit var locationManager: LocationManager
 
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.top_app_bar, menu)
-        return super.onCreateOptionsMenu(menu)
-    }
-
     /*
        TODO GPS nie działa prawidłowo na emulatorze, testować tylko na FIZYCZNEJ maszynie
        TODO Zmiana others na inne wskaźniki (podobna lista elementów z innymi parametrami, c0, nh3, so2;
@@ -151,6 +146,7 @@ class MainActivity : AppCompatActivity() {
 
     }
 
+    @SuppressLint("SetTextI18n")
     private fun getTime() {
         val cal = Calendar.getInstance()
         val editor = preferences.edit()
@@ -174,33 +170,38 @@ class MainActivity : AppCompatActivity() {
 
         editor.putString("time0", "$hour:$minute")
         editor.putInt("day0", day)
-//        editor.putString("time0", "$day, $hour:$minute")
         editor.apply()
-        for (i in 0..23) {
-            var hourForecast = ((cal.get(Calendar.HOUR_OF_DAY) + i + 1) % 24).toString()
+        for (i in 1..24) {
+            var hourForecast = ((cal.get(Calendar.HOUR_OF_DAY) + i) % 24).toString()
             if (hourForecast.toInt() < 10)
                 hourForecast = "0$hourForecast"
             var dayForecast = cal.get(Calendar.DAY_OF_WEEK)
-            if ((cal.get(Calendar.HOUR_OF_DAY) + i + 1) >= 24) {
+            if ((cal.get(Calendar.HOUR_OF_DAY) + i) >= 24) {
                 dayForecast = (dayForecast + 1) % 7
             }
-//            when (dayForecast) {
-//                0 -> dayForecastName = getString(R.string.res_Saturday)
-//                1 -> dayForecastName = getString(R.string.res_Sunday)
-//                2 -> dayForecastName = getString(R.string.res_Monday)
-//                3 -> dayForecastName = getString(R.string.res_Tuesday)
-//                4 -> dayForecastName = getString(R.string.res_Wednesday)
-//                5 -> dayForecastName = getString(R.string.res_Thursday)
-//                6 -> dayForecastName = getString(R.string.res_Friday)
-//                7 -> dayForecastName = getString(R.string.res_Saturday)
-//            }
-            editor.putString("time${i+1}", "$hourForecast:00")
-            editor.putInt("day${i+1}", dayForecast)
+            editor.putString("time${i}", "$hourForecast:00")
+            editor.putInt("day${i}", dayForecast)
             editor.apply()
         }
         val hourSlider = preferences.getFloat("forecastRange", 0F).toInt()
         val timeString = preferences.getString("time$hourSlider", "NODATA")
-        findViewById<TextView>(R.id.text_time).text = "$dayName, $timeString"
+        if ((cal.get(Calendar.HOUR_OF_DAY) + hourSlider) >= 24) {
+            val dayForecast = preferences.getInt("day${hourSlider}", 0)
+            lateinit var dayForecastName: String
+            when (dayForecast) {
+                0 -> dayForecastName = getString(R.string.res_Saturday)
+                1 -> dayForecastName = getString(R.string.res_Sunday)
+                2 -> dayForecastName = getString(R.string.res_Monday)
+                3 -> dayForecastName = getString(R.string.res_Tuesday)
+                4 -> dayForecastName = getString(R.string.res_Wednesday)
+                5 -> dayForecastName = getString(R.string.res_Thursday)
+                6 -> dayForecastName = getString(R.string.res_Friday)
+                7 -> dayForecastName = getString(R.string.res_Saturday)
+            }
+            findViewById<TextView>(R.id.text_time).text = "$dayForecastName, $timeString"
+        }
+        else
+            findViewById<TextView>(R.id.text_time).text = "$dayName, $timeString"
     }
 
     private val locationListener: LocationListener = object : LocationListener {

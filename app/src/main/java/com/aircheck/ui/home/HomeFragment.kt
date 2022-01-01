@@ -2,9 +2,8 @@ package com.aircheck.ui.home
 
 import android.content.Context
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.util.Log
+import android.view.*
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import com.aircheck.R
@@ -20,6 +19,11 @@ class HomeFragment : Fragment() {
     // onDestroyView.
     private val binding get() = _binding!!
 
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.top_app_bar, menu)
+        super.onCreateOptionsMenu(menu, inflater)
+    }
+
     override fun onCreateView(
             inflater: LayoutInflater,
             container: ViewGroup?,
@@ -28,6 +32,8 @@ class HomeFragment : Fragment() {
 //        homeViewModel =
 //                ViewModelProvider(this).get(HomeViewModel::class.java)
 
+        super.onCreateView(inflater, container, savedInstanceState)
+        setHasOptionsMenu(true)
         val preferences = activity?.getPreferences(Context.MODE_PRIVATE)
         val editor = preferences?.edit()
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
@@ -58,7 +64,7 @@ class HomeFragment : Fragment() {
         textPressure.text = preferences?.getString("pressureMain$hour", "NODATA")
 
         val day = preferences?.getInt("day$hour", 0)
-        var dayName = ""
+        var dayName = "REFRESH"
         when (day) {
             1 -> dayName = getString(R.string.res_Sunday)
             2 -> dayName = getString(R.string.res_Monday)
@@ -92,7 +98,7 @@ class HomeFragment : Fragment() {
             textPressure.text = preferences?.getString("pressureMain$hourNew", "NODATA")
 
             val day2 = preferences?.getInt("day$hourNew", 0)
-            var dayName2 = ""
+            var dayName2 = "REFRESH"
             when (day2) {
                 0 -> dayName2 = getString(R.string.res_Saturday)
                 1 -> dayName2 = getString(R.string.res_Sunday)
