@@ -56,7 +56,19 @@ class HomeFragment : Fragment() {
         textTemperature.text = temperatureText
         textHumidity.text = preferences?.getString("humidityMain$hour", "NODATA")
         textPressure.text = preferences?.getString("pressureMain$hour", "NODATA")
-        textTime.text = preferences?.getString("time$hour", "NODATA")
+
+        val day = preferences?.getInt("day$hour", 0)
+        var dayName = ""
+        when (day) {
+            1 -> dayName = getString(R.string.res_Sunday)
+            2 -> dayName = getString(R.string.res_Monday)
+            3 -> dayName = getString(R.string.res_Tuesday)
+            4 -> dayName = getString(R.string.res_Wednesday)
+            5 -> dayName = getString(R.string.res_Thursday)
+            6 -> dayName = getString(R.string.res_Friday)
+            7 -> dayName = getString(R.string.res_Saturday)
+        }
+        textTime.text = "$dayName, ${preferences?.getString("time$hour", "NODATA")}"
 
         val rangeSlider: RangeSlider = binding.sliderHome
         rangeSlider.values = listOf(preferences?.getFloat("forecastRange", 0F))
@@ -65,9 +77,9 @@ class HomeFragment : Fragment() {
             val values = rangeSlider.values
             editor?.putFloat("forecastRange", values[0])
             editor?.apply()
-            val hourTemp = values[0].toInt()
-            textPollution.text = preferences?.getString("pollutionMain$hourTemp", "NODATA")
-            var temperature2 = preferences?.getString("temperatureMain$hourTemp", "0.0")?.toFloat()
+            val hourNew = values[0].toInt()
+            textPollution.text = preferences?.getString("pollutionMain$hourNew", "NODATA")
+            var temperature2 = preferences?.getString("temperatureMain$hourNew", "0.0")?.toFloat()
             if (preferences?.getString("Temp", "Cel") == "Fah") {
                 temperature2 = ((temperature2!! * 9.0/5.0) + 32.0).toFloat()
             }
@@ -76,9 +88,22 @@ class HomeFragment : Fragment() {
             else
                 getString(R.string.res_fahrenheit)
             textTemperature.text = temperatureText2
-            textHumidity.text = preferences?.getString("humidityMain$hourTemp", "NODATA")
-            textPressure.text = preferences?.getString("pressureMain$hourTemp", "NODATA")
-            textTime.text = preferences?.getString("time$hourTemp", "NODATA")
+            textHumidity.text = preferences?.getString("humidityMain$hourNew", "NODATA")
+            textPressure.text = preferences?.getString("pressureMain$hourNew", "NODATA")
+
+            val day2 = preferences?.getInt("day$hourNew", 0)
+            var dayName2 = ""
+            when (day2) {
+                0 -> dayName2 = getString(R.string.res_Saturday)
+                1 -> dayName2 = getString(R.string.res_Sunday)
+                2 -> dayName2 = getString(R.string.res_Monday)
+                3 -> dayName2 = getString(R.string.res_Tuesday)
+                4 -> dayName2 = getString(R.string.res_Wednesday)
+                5 -> dayName2 = getString(R.string.res_Thursday)
+                6 -> dayName2 = getString(R.string.res_Friday)
+                7 -> dayName2 = getString(R.string.res_Saturday)
+            }
+            textTime.text = "$dayName2, ${preferences?.getString("time$hourNew", "NODATA")}"
         }
         return binding.root
     }

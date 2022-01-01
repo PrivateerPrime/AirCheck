@@ -52,10 +52,8 @@ class MainActivity : AppCompatActivity() {
 
     /*
        TODO GPS nie działa prawidłowo na emulatorze, testować tylko na FIZYCZNEJ maszynie
-       TODO Dodać oznaczenie paska predykcji na dole ekranu
-       TODO Poprawić dzień tygodnia w języku polskim
-       TODO Zmiana others na inne wskaźniki (podobna lista elementów z innymi parametrami, c0, nh3, so2; mogą to
-       TODO być inne dane atmosferyczne
+       TODO Zmiana others na inne wskaźniki (podobna lista elementów z innymi parametrami, c0, nh3, so2;
+       TODO mogą to być inne dane atmosferyczne
        TODO Refresh w innych widokach powoduje exception. Nie można wywyoływać tej funkcji z innych widoków
        TODO trzeba albo to naprawić, albo usunąć przicsk z innych widoków (https://stackoverflow.com/questions/48062260/add-an-actionbar-for-each-fragment)
        TODO Poprawa settings
@@ -162,44 +160,47 @@ class MainActivity : AppCompatActivity() {
             hour = "0$hour"
         if (minute.toInt() < 10)
             minute = "0$minute"
-        lateinit var day: String
+        val day: Int = cal.get(Calendar.DAY_OF_WEEK)
+        lateinit var dayName: String
         when (cal.get(Calendar.DAY_OF_WEEK)) {
-            1 -> day = getString(R.string.res_Sunday)
-            2 -> day = getString(R.string.res_Monday)
-            3 -> day = getString(R.string.res_Tuesday)
-            4 -> day = getString(R.string.res_Wednesday)
-            5 -> day = getString(R.string.res_Thursday)
-            6 -> day = getString(R.string.res_Friday)
-            7 -> day = getString(R.string.res_Saturday)
+            1 -> dayName = getString(R.string.res_Sunday)
+            2 -> dayName = getString(R.string.res_Monday)
+            3 -> dayName = getString(R.string.res_Tuesday)
+            4 -> dayName = getString(R.string.res_Wednesday)
+            5 -> dayName = getString(R.string.res_Thursday)
+            6 -> dayName = getString(R.string.res_Friday)
+            7 -> dayName = getString(R.string.res_Saturday)
         }
 
-        editor.putString("time0", "$day, $hour:$minute")
+        editor.putString("time0", "$hour:$minute")
+        editor.putInt("day0", day)
+//        editor.putString("time0", "$day, $hour:$minute")
         editor.apply()
         for (i in 0..23) {
             var hourForecast = ((cal.get(Calendar.HOUR_OF_DAY) + i + 1) % 24).toString()
             if (hourForecast.toInt() < 10)
                 hourForecast = "0$hourForecast"
             var dayForecast = cal.get(Calendar.DAY_OF_WEEK)
-            lateinit var dayForecastName: String
             if ((cal.get(Calendar.HOUR_OF_DAY) + i + 1) >= 24) {
                 dayForecast = (dayForecast + 1) % 7
             }
-            when (dayForecast) {
-                0 -> dayForecastName = getString(R.string.res_Saturday)
-                1 -> dayForecastName = getString(R.string.res_Sunday)
-                2 -> dayForecastName = getString(R.string.res_Monday)
-                3 -> dayForecastName = getString(R.string.res_Tuesday)
-                4 -> dayForecastName = getString(R.string.res_Wednesday)
-                5 -> dayForecastName = getString(R.string.res_Thursday)
-                6 -> dayForecastName = getString(R.string.res_Friday)
-                7 -> dayForecastName = getString(R.string.res_Saturday)
-            }
-            editor.putString("time${i+1}", "$dayForecastName, $hourForecast:00")
+//            when (dayForecast) {
+//                0 -> dayForecastName = getString(R.string.res_Saturday)
+//                1 -> dayForecastName = getString(R.string.res_Sunday)
+//                2 -> dayForecastName = getString(R.string.res_Monday)
+//                3 -> dayForecastName = getString(R.string.res_Tuesday)
+//                4 -> dayForecastName = getString(R.string.res_Wednesday)
+//                5 -> dayForecastName = getString(R.string.res_Thursday)
+//                6 -> dayForecastName = getString(R.string.res_Friday)
+//                7 -> dayForecastName = getString(R.string.res_Saturday)
+//            }
+            editor.putString("time${i+1}", "$hourForecast:00")
+            editor.putInt("day${i+1}", dayForecast)
             editor.apply()
         }
         val hourSlider = preferences.getFloat("forecastRange", 0F).toInt()
         val timeString = preferences.getString("time$hourSlider", "NODATA")
-        findViewById<TextView>(R.id.text_time).text = timeString
+        findViewById<TextView>(R.id.text_time).text = "$dayName, $timeString"
     }
 
     private val locationListener: LocationListener = object : LocationListener {
