@@ -49,8 +49,6 @@ class MainActivity : AppCompatActivity() {
        TODO GPS nie działa prawidłowo na emulatorze, testować tylko na FIZYCZNEJ maszynie
        TODO Zmiana others na inne wskaźniki (podobna lista elementów z innymi parametrami, c0, nh3, so2;
        TODO mogą to być inne dane atmosferyczne
-       TODO Refresh w innych widokach powoduje exception. Nie można wywyoływać tej funkcji z innych widoków
-       TODO trzeba albo to naprawić, albo usunąć przicsk z innych widoków (https://stackoverflow.com/questions/48062260/add-an-actionbar-for-each-fragment)
        TODO Poprawa settings
     */
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
