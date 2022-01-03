@@ -9,6 +9,7 @@ import androidx.fragment.app.Fragment
 import com.aircheck.R
 import com.aircheck.databinding.FragmentHomeBinding
 import com.google.android.material.slider.RangeSlider
+import java.lang.NumberFormatException
 
 class HomeFragment : Fragment() {
 
@@ -51,15 +52,20 @@ class HomeFragment : Fragment() {
 
         val hour = preferences?.getFloat("forecastRange", 0F)?.toInt()
         textPollution.text = preferences?.getString("pollutionMain$hour", "NODATA")
-        var temperature = preferences?.getString("temperatureMain$hour", "0.0")?.toFloat()
-        if (preferences?.getString("Temp", "Cel") == "Fah") {
-            temperature = ((temperature!! * 9.0/5.0) + 32.0).toFloat()
+        try {
+            var temperature = preferences?.getString("temperatureMain$hour", "0.0")?.toFloat()
+            if (preferences?.getString("Temp", "Cel") == "Fah") {
+                temperature = ((temperature!! * 9.0/5.0) + 32.0).toFloat()
+            }
+            val temperatureText = temperature.toString() + if (preferences?.getString("Temp", "Cel") == "Cel")
+                getString(R.string.res_celsius)
+            else
+                getString(R.string.res_fahrenheit)
+            textTemperature.text = temperatureText
         }
-        val temperatureText = temperature.toString() + if (preferences?.getString("Temp", "Cel") == "Cel")
-            getString(R.string.res_celsius)
-        else
-            getString(R.string.res_fahrenheit)
-        textTemperature.text = temperatureText
+        catch (e: NumberFormatException) {
+            textTemperature.text = "NODATA"
+        }
         textHumidity.text = preferences?.getString("humidityMain$hour", "NODATA")
         textPressure.text = preferences?.getString("pressureMain$hour", "NODATA")
 
@@ -85,19 +91,24 @@ class HomeFragment : Fragment() {
             editor?.apply()
             val hourNew = values[0].toInt()
             textPollution.text = preferences?.getString("pollutionMain$hourNew", "NODATA")
-            var temperature2 = preferences?.getString("temperatureMain$hourNew", "0.0")?.toFloat()
-            if (preferences?.getString("Temp", "Cel") == "Fah") {
-                temperature2 = ((temperature2!! * 9.0/5.0) + 32.0).toFloat()
+            try {
+                var temperature2 = preferences?.getString("temperatureMain$hourNew", "0.0")?.toFloat()
+                if (preferences?.getString("Temp", "Cel") == "Fah") {
+                    temperature2 = ((temperature2!! * 9.0 / 5.0) + 32.0).toFloat()
+                }
+                val temperatureText2 = temperature2.toString() + if (preferences?.getString("Temp", "Cel") == "Cel")
+                    getString(R.string.res_celsius)
+                else
+                    getString(R.string.res_fahrenheit)
+                textTemperature.text = temperatureText2
             }
-            val temperatureText2 = temperature2.toString() + if (preferences?.getString("Temp", "Cel") == "Cel")
-                getString(R.string.res_celsius)
-            else
-                getString(R.string.res_fahrenheit)
-            textTemperature.text = temperatureText2
+            catch (e: NumberFormatException) {
+                textTemperature.text = "NODATA"
+            }
             textHumidity.text = preferences?.getString("humidityMain$hourNew", "NODATA")
             textPressure.text = preferences?.getString("pressureMain$hourNew", "NODATA")
 
-            val day2 = preferences?.getInt("day$hourNew", 0)
+            val day2 = preferences?.getInt("day$hourNew", -1)
             var dayName2 = "REFRESH"
             when (day2) {
                 0 -> dayName2 = getString(R.string.res_Saturday)
