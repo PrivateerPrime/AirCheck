@@ -10,7 +10,7 @@
     <string name="res_barometer" translatable="false">Barometer</string>
     <string name="res_refresh" translatable="false">Refresh</string>
     <string name="res_welcome_string">"How's the air today?"</string>
-    <string name="res_other_installations">"Other installations"</string>
+    <string name="res_other_installations">Other data</string>
     <string name="res_search_range">"Searching range"</string>
     <string name="res_units">Units</string>
     <string name="res_km" translatable="false">Km</string>
