@@ -11,7 +11,6 @@ import android.location.LocationManager
 import android.os.Bundle
 import android.util.DisplayMetrics
 import android.util.Log
-import android.view.MenuItem
 import android.widget.TextView
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import androidx.appcompat.app.AppCompatActivity
@@ -29,12 +28,8 @@ import android.location.LocationListener
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityCompat
-import com.aircheck.ui.home.HomeFragment
-import com.aircheck.ui.other.OtherFragment
 import com.android.volley.Request
-import com.android.volley.Response
 import com.android.volley.toolbox.*
-import java.io.Console
 
 class MainActivity : AppCompatActivity() {
 
@@ -205,53 +200,21 @@ class MainActivity : AppCompatActivity() {
         override fun onProviderDisabled(provider: String) {}
     }
 
-    @SuppressLint("MissingPermission")
     fun getData() {
         val providers = locationManager.allProviders
         var location: Location? = null
-        for (i in providers.indices.reversed()) {
-            location = locationManager.getLastKnownLocation(providers[i])
-            if (location != null) break
-        }
-        val gps = DoubleArray(2)
-        if (location != null) {
-            Log.i("lat", location.latitude.toString()); Log.i("lng", location.longitude.toString())
-            gps[0] = location.latitude
-            gps[1] = location.longitude
-
-            val pollutionUrl = "https://api.openweathermap.org/data/2.5/air_pollution/forecast?lat=${location.latitude}&lon=${location.longitude}&appid=0320e3284b492358bcc9752cd5796e03"
-            val pollutionRequest = StringRequest(Request.Method.GET, pollutionUrl, {
-                    response -> Log.i("resp", response)
-                    pollutionData = Gson().fromJson(response, PollutionDataClass::class.java)
-                    setPollutionData()
-            }, {
-                    error -> Log.e("resp", error.toString())
-            })
-            val metricsUrl = "https://api.openweathermap.org/data/2.5/onecall?lat=${location.latitude}&lon=${location.longitude}&exclude=minutely,daily,alerts&units=metric&appid=0320e3284b492358bcc9752cd5796e03"
-            val metricsRequest = StringRequest(Request.Method.GET, metricsUrl, {
-
-                    response -> Log.i("resp", response)
-                    metricsData = Gson().fromJson(response, MetricsDataClass::class.java)
-                    setMetricsData()
-            }, {
-                    error -> Log.e("resp", error.toString())
-            })
-
-            try {
-                requestQueue.add(pollutionRequest)
-                requestQueue.add(metricsRequest)
-                getTime()
-                Toast.makeText(applicationContext, getString(R.string.res_sync_correct), Toast.LENGTH_SHORT).show()
+        var securityError = false
+        try
+        {
+            for (i in providers.indices.reversed()) {
+                location = locationManager.getLastKnownLocation(providers[i])
+                if (location != null) break
             }
-            catch (e: Exception) {
-                Log.e("err", e.printStackTrace().toString())
-                Toast.makeText(applicationContext, getString(R.string.res_sync_error), Toast.LENGTH_SHORT).show()
-            }
-        }
-        else {
+        } catch (e: SecurityException) {
+            securityError = true
             AlertDialog.Builder(this)
-                .setTitle(R.string.res_no_location)
-                .setMessage(R.string.res_no_location_message)
+                .setTitle(R.string.res_location_no_permissions)
+                .setMessage(R.string.res_location_no_permissions_message)
                 .setPositiveButton(
                     R.string.res_accept
                 ) { _, _ ->
@@ -259,6 +222,73 @@ class MainActivity : AppCompatActivity() {
                 }
                 .create()
                 .show()
+        }
+        if (location != null) {
+            Log.i("lat", location.latitude.toString()); Log.i("lng", location.longitude.toString())
+            val pollutionUrl = "https://api.openweathermap.org/data/2.5/air_pollution/forecast?lat=${location.latitude}&lon=${location.longitude}&appid=0320e3284b492358bcc9752cd5796e03"
+            val pollutionRequest = StringRequest(Request.Method.GET, pollutionUrl, {
+
+                    response -> Log.i("resp", response)
+                pollutionData = Gson().fromJson(response, PollutionDataClass::class.java)
+                setPollutionData()
+            }, {
+                    error -> Log.e("resp", error.toString())
+                    AlertDialog.Builder(this)
+                        .setTitle(R.string.res_no_location)
+                        .setMessage(R.string.res_no_location_message)
+                        .setPositiveButton(
+                            R.string.res_accept
+                        ) { _, _ ->
+
+                        }
+                        .create()
+                        .show()
+            })
+            val metricsUrl = "https://api.openweathermap.org/data/2.5/onecall?lat=${location.latitude}&lon=${location.longitude}&exclude=minutely,daily,alerts&units=metric&appid=0320e3284b492358bcc9752cd5796e03"
+            val metricsRequest = StringRequest(Request.Method.GET, metricsUrl, {
+
+                    response -> Log.i("resp", response)
+                metricsData = Gson().fromJson(response, MetricsDataClass::class.java)
+                setMetricsData()
+                Toast.makeText(applicationContext, getString(R.string.res_sync_correct), Toast.LENGTH_SHORT).show()
+            }, {
+                    error -> Log.e("resp", error.toString())
+                    AlertDialog.Builder(this)
+                        .setTitle(R.string.res_no_location)
+                        .setMessage(R.string.res_no_location_message)
+                        .setPositiveButton(
+                            R.string.res_accept
+                        ) { _, _ ->
+
+                        }
+                        .create()
+                        .show()
+            })
+
+            try {
+                requestQueue.add(pollutionRequest)
+                requestQueue.add(metricsRequest)
+                getTime()
+            }
+            catch (e: Exception) {
+                Log.e("err", e.printStackTrace().toString())
+                Toast.makeText(applicationContext, getString(R.string.res_sync_error), Toast.LENGTH_SHORT).show()
+            }
+        }
+        else {
+            if (!securityError)
+            {
+                AlertDialog.Builder(this)
+                    .setTitle(R.string.res_no_internet_connection_title)
+                    .setMessage(R.string.res_no_internet_connection_message)
+                    .setPositiveButton(
+                        R.string.res_accept
+                    ) { _, _ ->
+
+                    }
+                    .create()
+                    .show()
+            }
         }
     }
 
@@ -290,7 +320,16 @@ class MainActivity : AppCompatActivity() {
             else {
                 ActivityCompat.requestPermissions(this,
                     arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION),99)
+
             }
+        }
+        else {
+            locationManager.requestLocationUpdates(
+                LocationManager.NETWORK_PROVIDER,
+                0,
+                0F,
+                locationListener
+            )
         }
     }
 
@@ -308,7 +347,7 @@ class MainActivity : AppCompatActivity() {
                     locationManager.requestLocationUpdates(
                         LocationManager.NETWORK_PROVIDER,
                         0,
-                        10F,
+                        0F,
                         locationListener
                     )
                 }
