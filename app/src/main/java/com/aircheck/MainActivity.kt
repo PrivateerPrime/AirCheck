@@ -11,7 +11,6 @@ import android.location.LocationManager
 import android.os.Bundle
 import android.util.DisplayMetrics
 import android.util.Log
-import android.view.Menu
 import android.view.MenuItem
 import android.widget.TextView
 import com.google.android.material.bottomnavigation.BottomNavigationView
@@ -22,10 +21,6 @@ import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.aircheck.databinding.ActivityMainBinding
 import com.android.volley.RequestQueue
-import com.android.volley.toolbox.BasicNetwork
-import com.android.volley.toolbox.DiskBasedCache
-import com.android.volley.toolbox.HurlStack
-import com.android.volley.toolbox.StringRequest
 import com.google.gson.Gson
 import java.lang.Exception
 import java.util.*
@@ -34,16 +29,22 @@ import android.location.LocationListener
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityCompat
+import com.aircheck.ui.home.HomeFragment
+import com.aircheck.ui.other.OtherFragment
 import com.android.volley.Request
+import com.android.volley.Response
+import com.android.volley.toolbox.*
+import java.io.Console
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
     private lateinit var requestQueue: RequestQueue
-    private lateinit var pollutionData: PollutionDataClass
-    private lateinit var metricsData: MetricsDataClass
+    lateinit var pollutionData: PollutionDataClass
+    lateinit var metricsData: MetricsDataClass
     private lateinit var preferences: SharedPreferences
     private lateinit var locationManager: LocationManager
+
 
     /*
        TODO GPS nie działa prawidłowo na emulatorze, testować tylko na FIZYCZNEJ maszynie
@@ -51,12 +52,8 @@ class MainActivity : AppCompatActivity() {
        TODO mogą to być inne dane atmosferyczne
        TODO Poprawa settings
     */
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
 
-        Log.i("t", "klikRefresh")
-        getData()
-        return super.onOptionsItemSelected(item)
-    }
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         preferences = getPreferences(Context.MODE_PRIVATE)
@@ -99,7 +96,6 @@ class MainActivity : AppCompatActivity() {
         val pollution = preferences.getString("pollutionMain$hour", "NODATA")
 
         findViewById<TextView>(R.id.text_pollution).text = pollution
-
     }
 
     private fun setMetricsData() {
@@ -210,7 +206,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     @SuppressLint("MissingPermission")
-    private fun getData() {
+    fun getData() {
         val providers = locationManager.allProviders
         var location: Location? = null
         for (i in providers.indices.reversed()) {
@@ -223,10 +219,6 @@ class MainActivity : AppCompatActivity() {
             gps[0] = location.latitude
             gps[1] = location.longitude
 
-            val maxDistanceKM: String = if (preferences.getString("Unit", "Km") == "Km")
-                preferences.getFloat("searchRange", 5.0F).toString()
-            else
-                (preferences.getFloat("searchRange", 5.0F)*1.609344).toString()
             val pollutionUrl = "https://api.openweathermap.org/data/2.5/air_pollution/forecast?lat=${location.latitude}&lon=${location.longitude}&appid=0320e3284b492358bcc9752cd5796e03"
             val pollutionRequest = StringRequest(Request.Method.GET, pollutionUrl, {
                     response -> Log.i("resp", response)
@@ -237,6 +229,7 @@ class MainActivity : AppCompatActivity() {
             })
             val metricsUrl = "https://api.openweathermap.org/data/2.5/onecall?lat=${location.latitude}&lon=${location.longitude}&exclude=minutely,daily,alerts&units=metric&appid=0320e3284b492358bcc9752cd5796e03"
             val metricsRequest = StringRequest(Request.Method.GET, metricsUrl, {
+
                     response -> Log.i("resp", response)
                     metricsData = Gson().fromJson(response, MetricsDataClass::class.java)
                     setMetricsData()
