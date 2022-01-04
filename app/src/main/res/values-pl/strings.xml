@@ -28,4 +28,6 @@
     <string name="res_Friday">Piątek</string>
     <string name="res_Saturday">Sobota</string>
     <string name="res_Sunday">Niedziela</string>
+    <string name="res_no_internet_connection_title">Brak połączenia z internetem</string>
+    <string name="res_no_internet_connection_message">Aplikacja nie mogłą połączyć się z internetem. Spróbuj ponownie później</string>
 </resources>

@@ -40,4 +40,6 @@
     <string name="res_Friday">Friday</string>
     <string name="res_Saturday">Saturday</string>
     <string name="res_Sunday">Sunday</string>
+    <string name="res_no_internet_connection_title">No internet connection</string>
+    <string name="res_no_internet_connection_message">App was unable to connect to the internet. Try again later</string>
 </resources>
