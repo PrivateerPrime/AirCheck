@@ -213,7 +213,7 @@ class MainActivity : AppCompatActivity() {
         } catch (e: SecurityException) {
             securityError = true
             AlertDialog.Builder(this)
-                .setTitle(R.string.res_location_no_permissions)
+                .setTitle(R.string.res_location_no_permissions_title)
                 .setMessage(R.string.res_location_no_permissions_message)
                 .setPositiveButton(
                     R.string.res_accept
@@ -234,8 +234,8 @@ class MainActivity : AppCompatActivity() {
             }, {
                     error -> Log.e("resp", error.toString())
                     AlertDialog.Builder(this)
-                        .setTitle(R.string.res_no_location)
-                        .setMessage(R.string.res_no_location_message)
+                        .setTitle(R.string.res_no_internet_connection_title)
+                        .setMessage(R.string.res_no_internet_connection_message)
                         .setPositiveButton(
                             R.string.res_accept
                         ) { _, _ ->
@@ -254,8 +254,8 @@ class MainActivity : AppCompatActivity() {
             }, {
                     error -> Log.e("resp", error.toString())
                     AlertDialog.Builder(this)
-                        .setTitle(R.string.res_no_location)
-                        .setMessage(R.string.res_no_location_message)
+                        .setTitle(R.string.res_no_internet_connection_title)
+                        .setMessage(R.string.res_no_internet_connection_message)
                         .setPositiveButton(
                             R.string.res_accept
                         ) { _, _ ->
@@ -279,8 +279,20 @@ class MainActivity : AppCompatActivity() {
             if (!securityError)
             {
                 AlertDialog.Builder(this)
-                    .setTitle(R.string.res_no_internet_connection_title)
-                    .setMessage(R.string.res_no_internet_connection_message)
+                    .setTitle(R.string.res_no_location_title)
+                    .setMessage(R.string.res_no_location_message)
+                    .setPositiveButton(
+                        R.string.res_accept
+                    ) { _, _ ->
+
+                    }
+                    .create()
+                    .show()
+            }
+            else {
+                AlertDialog.Builder(this)
+                    .setTitle(R.string.res_location_no_permissions_title)
+                    .setMessage(R.string.res_location_no_permissions_message)
                     .setPositiveButton(
                         R.string.res_accept
                     ) { _, _ ->
@@ -353,7 +365,7 @@ class MainActivity : AppCompatActivity() {
                 }
                 else {
                     AlertDialog.Builder(this)
-                        .setTitle(R.string.res_location_no_permissions)
+                        .setTitle(R.string.res_location_no_permissions_title)
                         .setMessage(R.string.res_location_no_permissions_message)
                         .setPositiveButton(
                             R.string.res_accept
