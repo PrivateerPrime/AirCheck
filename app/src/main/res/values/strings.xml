@@ -42,4 +42,9 @@
     <string name="res_Sunday">Sunday</string>
     <string name="res_no_internet_connection_title">No internet connection</string>
     <string name="res_no_internet_connection_message">App was unable to connect to the internet. Try again later</string>
+    <string name="res_uv_low">Low risk</string>
+    <string name="res_uv_moderate">Moderate risk</string>
+    <string name="res_uv_high">High risk</string>
+    <string name="res_uv_very_high">Very high risk</string>
+    <string name="res_uv_extreme">Extreme risk</string>
 </resources>

@@ -30,4 +30,9 @@
     <string name="res_Sunday">Niedziela</string>
     <string name="res_no_internet_connection_title">Brak połączenia z internetem</string>
     <string name="res_no_internet_connection_message">Aplikacja nie mogłą połączyć się z internetem. Spróbuj ponownie później</string>
+    <string name="res_uv_low">Niskie zagrożenie</string>
+    <string name="res_uv_moderate">Średnie zagrożenie</string>
+    <string name="res_uv_high">Wysokie zagrożenie</string>
+    <string name="res_uv_very_high">Bardzo duże zagrożenie</string>
+    <string name="res_uv_extreme">Ekstremalne zagrożenie</string>
 </resources>
