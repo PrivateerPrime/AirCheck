@@ -41,7 +41,7 @@ data class Hourly(
     val temp: Double,
     val uvi: Double,
     val visibility: Int,
-    val weather: List<WeatherX>,
+    val weather: List<Weather>,
     val wind_deg: Int,
     val wind_gust: Double,
     val wind_speed: Double
@@ -60,11 +60,4 @@ data class Rain(
 
 data class Snow(
     val `1h`: Double
-)
-
-data class WeatherX(
-    val description: String,
-    val icon: String,
-    val id: Int,
-    val main: String
 )
