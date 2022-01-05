@@ -53,7 +53,9 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         preferences = getPreferences(Context.MODE_PRIVATE)
         if (preferences.getString("Lan", "en") == "pl")
-            setLocale()
+            setLocale("pl")
+        else
+            setLocale("en")
         super.onCreate(savedInstanceState)
 
         binding = ActivityMainBinding.inflate(layoutInflater)
@@ -75,6 +77,200 @@ class MainActivity : AppCompatActivity() {
 
         requestQueue = RequestQueue(DiskBasedCache(cacheDir, 1024*1024), BasicNetwork((HurlStack()))).apply {
             start()
+        }
+    }
+
+    fun getDataHome() {
+        val (location, securityError) = getLocation()
+        if (location != null) {
+            Log.i("lat", location.latitude.toString()); Log.i("lng", location.longitude.toString())
+            val pollutionUrl = "https://api.openweathermap.org/data/2.5/air_pollution/forecast?lat=${location.latitude}&lon=${location.longitude}&appid=0320e3284b492358bcc9752cd5796e03"
+            val pollutionRequest = StringRequest(Request.Method.GET, pollutionUrl, {
+
+                    response -> Log.i("resp", response)
+                pollutionData = Gson().fromJson(response, PollutionDataClass::class.java)
+                setPollutionData()
+            }, {
+                    error -> Log.e("resp", error.toString())
+                    AlertDialog.Builder(this)
+                        .setTitle(R.string.res_no_internet_connection_title)
+                        .setMessage(R.string.res_no_internet_connection_message)
+                        .setPositiveButton(
+                            R.string.res_accept
+                        ) { _, _ ->
+
+                        }
+                        .create()
+                        .show()
+            })
+            val metricsUrl = "https://api.openweathermap.org/data/2.5/onecall?lat=${location.latitude}&lon=${location.longitude}&exclude=minutely,daily,alerts&units=metric&appid=0320e3284b492358bcc9752cd5796e03"
+            val metricsRequest = StringRequest(Request.Method.GET, metricsUrl, {
+
+                    response -> Log.i("resp", response)
+                metricsData = Gson().fromJson(response, MetricsDataClass::class.java)
+                setMetricsData()
+                Toast.makeText(applicationContext, getString(R.string.res_sync_correct), Toast.LENGTH_SHORT).show()
+            }, {
+                    error -> Log.e("resp", error.toString())
+                    AlertDialog.Builder(this)
+                        .setTitle(R.string.res_no_internet_connection_title)
+                        .setMessage(R.string.res_no_internet_connection_message)
+                        .setPositiveButton(
+                            R.string.res_accept
+                        ) { _, _ ->
+
+                        }
+                        .create()
+                        .show()
+            })
+
+            try {
+                requestQueue.add(pollutionRequest)
+                requestQueue.add(metricsRequest)
+                getTime()
+            }
+            catch (e: Exception) {
+                Log.e("err", e.printStackTrace().toString())
+                Toast.makeText(applicationContext, getString(R.string.res_sync_error), Toast.LENGTH_SHORT).show()
+            }
+        }
+        else {
+            if (!securityError)
+            {
+                AlertDialog.Builder(this)
+                    .setTitle(R.string.res_no_location_title)
+                    .setMessage(R.string.res_no_location_message)
+                    .setPositiveButton(
+                        R.string.res_accept
+                    ) { _, _ ->
+
+                    }
+                    .create()
+                    .show()
+            }
+            else {
+                AlertDialog.Builder(this)
+                    .setTitle(R.string.res_location_no_permissions_title)
+                    .setMessage(R.string.res_location_no_permissions_message)
+                    .setPositiveButton(
+                        R.string.res_accept
+                    ) { _, _ ->
+
+                    }
+                    .create()
+                    .show()
+            }
+        }
+    }
+
+    fun getDataOthers() {
+        val (location, securityError) = getLocation()
+        if (location != null) {
+            Log.i("lat", location.latitude.toString()); Log.i("lng", location.longitude.toString())
+            val metricsUrl = "https://api.openweathermap.org/data/2.5/onecall?lat=${location.latitude}&lon=${location.longitude}&exclude=minutely,daily,alerts&units=metric&appid=0320e3284b492358bcc9752cd5796e03"
+            val metricsRequest = StringRequest(Request.Method.GET, metricsUrl, {
+                    response -> Log.i("resp", response)
+                metricsData = Gson().fromJson(response, MetricsDataClass::class.java)
+                setOthersData()
+                Toast.makeText(applicationContext, getString(R.string.res_sync_correct), Toast.LENGTH_SHORT).show()
+            }, {
+                    error -> Log.e("resp", error.toString())
+                AlertDialog.Builder(this)
+                    .setTitle(R.string.res_no_internet_connection_title)
+                    .setMessage(R.string.res_no_internet_connection_message)
+                    .setPositiveButton(
+                        R.string.res_accept
+                    ) { _, _ ->
+
+                    }
+                    .create()
+                    .show()
+            })
+
+            try {
+                requestQueue.add(metricsRequest)
+                //getTime()
+            }
+            catch (e: Exception) {
+                Log.e("err", e.printStackTrace().toString())
+                Toast.makeText(applicationContext, getString(R.string.res_sync_error), Toast.LENGTH_SHORT).show()
+            }
+        }
+        else {
+            if (!securityError)
+            {
+                AlertDialog.Builder(this)
+                    .setTitle(R.string.res_no_location_title)
+                    .setMessage(R.string.res_no_location_message)
+                    .setPositiveButton(
+                        R.string.res_accept
+                    ) { _, _ ->
+
+                    }
+                    .create()
+                    .show()
+            }
+            else {
+                AlertDialog.Builder(this)
+                    .setTitle(R.string.res_location_no_permissions_title)
+                    .setMessage(R.string.res_location_no_permissions_message)
+                    .setPositiveButton(
+                        R.string.res_accept
+                    ) { _, _ ->
+
+                    }
+                    .create()
+                    .show()
+            }
+        }
+    }
+
+    private fun setOthersData() {
+        val editor = preferences.edit()
+        val uviValue = metricsData.current.uvi
+        val threadLevel = when {
+            uviValue < 3.0 -> getString(R.string.res_uv_low)
+            uviValue < 6.0 -> getString(R.string.res_uv_moderate)
+            uviValue < 8.0 -> getString(R.string.res_uv_high)
+            uviValue < 11.0 -> getString(R.string.res_uv_very_high)
+            else -> getString(R.string.res_uv_extreme)
+        }
+        val visibilityValue = metricsData.current.visibility
+        val windSpeedValue = metricsData.current.wind_speed
+        val precipitationValue = when (metricsData.current.weather[0].main) {
+            "Rain" -> metricsData.current.rain.`1h`
+            "Snow" -> metricsData.current.snow.`1h`
+            else -> {
+                null
+            }
+        }
+        editor.putString("uviOthers0", "$uviValue")
+        editor.putString("visibilityOthers0", "$visibilityValue")
+        editor.putString("windSpeedOthers0", "$windSpeedValue")
+        if (precipitationValue != null) editor.putString("precipitationOthers0", "$precipitationValue")
+        else editor.putString("precipitationOthers0", "NoPrec")
+        editor.apply()
+
+        for (iter in 0..23) {
+            val uviString = "uviOthers${iter+1}"
+            val visibilityString = "visibilityOthers${iter+1}"
+            val windSpeedString = "windSpeedOthers${iter+1}"
+            val precipitationString = "precipitationOthers${iter+1}"
+            val uviValueForecast = metricsData.hourly[iter].uvi
+            val visibilityValueForecast = metricsData.hourly[iter].visibility
+            val windSpeedValueForecast = metricsData.hourly[iter].wind_speed
+            val precipitationValueForecast = when (metricsData.hourly[iter].weather[0].main) {
+                "Rain" -> metricsData.hourly[iter].rain.`1h`
+                "Snow" -> metricsData.hourly[iter].snow.`1h`
+                else -> {
+                    null
+                }
+            }
+            editor.putString(uviString, "$uviValueForecast")
+            editor.putString(visibilityString, "$visibilityValueForecast")
+            editor.putString(windSpeedString, "$windSpeedValueForecast")
+            editor.putString(precipitationString, "$precipitationValueForecast")
+            editor.apply()
         }
     }
 
@@ -193,16 +389,9 @@ class MainActivity : AppCompatActivity() {
             findViewById<TextView>(R.id.text_time).text = "$dayName, $timeString"
     }
 
-    private val locationListener: LocationListener = object : LocationListener {
-        override fun onLocationChanged(location: Location) {Log.i("loc", location.latitude.toString() + " " + location.longitude)}
-        override fun onStatusChanged(provider: String, status: Int, extras: Bundle) {}
-        override fun onProviderEnabled(provider: String) {}
-        override fun onProviderDisabled(provider: String) {}
-    }
-
-    fun getData() {
-        val providers = locationManager.allProviders
+    private fun getLocation(): Pair<Location?, Boolean> {
         var location: Location? = null
+        val providers = locationManager.allProviders
         var securityError = false
         try
         {
@@ -211,7 +400,6 @@ class MainActivity : AppCompatActivity() {
                 if (location != null) break
             }
         } catch (e: SecurityException) {
-            securityError = true
             AlertDialog.Builder(this)
                 .setTitle(R.string.res_location_no_permissions_title)
                 .setMessage(R.string.res_location_no_permissions_message)
@@ -222,86 +410,16 @@ class MainActivity : AppCompatActivity() {
                 }
                 .create()
                 .show()
+            return null to true
         }
-        if (location != null) {
-            Log.i("lat", location.latitude.toString()); Log.i("lng", location.longitude.toString())
-            val pollutionUrl = "https://api.openweathermap.org/data/2.5/air_pollution/forecast?lat=${location.latitude}&lon=${location.longitude}&appid=0320e3284b492358bcc9752cd5796e03"
-            val pollutionRequest = StringRequest(Request.Method.GET, pollutionUrl, {
+        return location to securityError
+    }
 
-                    response -> Log.i("resp", response)
-                pollutionData = Gson().fromJson(response, PollutionDataClass::class.java)
-                setPollutionData()
-            }, {
-                    error -> Log.e("resp", error.toString())
-                    AlertDialog.Builder(this)
-                        .setTitle(R.string.res_no_internet_connection_title)
-                        .setMessage(R.string.res_no_internet_connection_message)
-                        .setPositiveButton(
-                            R.string.res_accept
-                        ) { _, _ ->
-
-                        }
-                        .create()
-                        .show()
-            })
-            val metricsUrl = "https://api.openweathermap.org/data/2.5/onecall?lat=${location.latitude}&lon=${location.longitude}&exclude=minutely,daily,alerts&units=metric&appid=0320e3284b492358bcc9752cd5796e03"
-            val metricsRequest = StringRequest(Request.Method.GET, metricsUrl, {
-
-                    response -> Log.i("resp", response)
-                metricsData = Gson().fromJson(response, MetricsDataClass::class.java)
-                setMetricsData()
-                Toast.makeText(applicationContext, getString(R.string.res_sync_correct), Toast.LENGTH_SHORT).show()
-            }, {
-                    error -> Log.e("resp", error.toString())
-                    AlertDialog.Builder(this)
-                        .setTitle(R.string.res_no_internet_connection_title)
-                        .setMessage(R.string.res_no_internet_connection_message)
-                        .setPositiveButton(
-                            R.string.res_accept
-                        ) { _, _ ->
-
-                        }
-                        .create()
-                        .show()
-            })
-
-            try {
-                requestQueue.add(pollutionRequest)
-                requestQueue.add(metricsRequest)
-                getTime()
-            }
-            catch (e: Exception) {
-                Log.e("err", e.printStackTrace().toString())
-                Toast.makeText(applicationContext, getString(R.string.res_sync_error), Toast.LENGTH_SHORT).show()
-            }
-        }
-        else {
-            if (!securityError)
-            {
-                AlertDialog.Builder(this)
-                    .setTitle(R.string.res_no_location_title)
-                    .setMessage(R.string.res_no_location_message)
-                    .setPositiveButton(
-                        R.string.res_accept
-                    ) { _, _ ->
-
-                    }
-                    .create()
-                    .show()
-            }
-            else {
-                AlertDialog.Builder(this)
-                    .setTitle(R.string.res_location_no_permissions_title)
-                    .setMessage(R.string.res_location_no_permissions_message)
-                    .setPositiveButton(
-                        R.string.res_accept
-                    ) { _, _ ->
-
-                    }
-                    .create()
-                    .show()
-            }
-        }
+    private val locationListener: LocationListener = object : LocationListener {
+        override fun onLocationChanged(location: Location) {Log.i("loc", location.latitude.toString() + " " + location.longitude)}
+        override fun onStatusChanged(provider: String, status: Int, extras: Bundle) {}
+        override fun onProviderEnabled(provider: String) {}
+        override fun onProviderDisabled(provider: String) {}
     }
 
     private fun checkForPermissions() {
@@ -332,7 +450,6 @@ class MainActivity : AppCompatActivity() {
             else {
                 ActivityCompat.requestPermissions(this,
                     arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION),99)
-
             }
         }
         else {
@@ -380,8 +497,8 @@ class MainActivity : AppCompatActivity() {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
     }
 
-    private fun setLocale() {
-        val locale = Locale("pl")
+    private fun setLocale(lan: String) {
+        val locale = Locale(lan)
         val res: Resources = resources
         val dm: DisplayMetrics = res.displayMetrics
         val conf: Configuration = res.configuration
