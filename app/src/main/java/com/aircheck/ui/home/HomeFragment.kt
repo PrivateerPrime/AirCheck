@@ -1,29 +1,17 @@
 package com.aircheck.ui.home
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.content.SharedPreferences
-import android.location.Location
 import android.os.Bundle
 import android.util.Log
 import android.view.*
 import android.widget.TextView
-import android.widget.Toast
-import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import com.aircheck.MainActivity
-import com.aircheck.MetricsDataClass
-import com.aircheck.PollutionDataClass
 import com.aircheck.R
 import com.aircheck.databinding.FragmentHomeBinding
-import com.android.volley.Request
-import com.android.volley.toolbox.StringRequest
 import com.google.android.material.slider.RangeSlider
-import com.google.gson.Gson
-import java.lang.Exception
 import java.lang.NumberFormatException
-import java.lang.Thread.sleep
-import java.util.*
 
 class HomeFragment : Fragment() {
 
@@ -43,7 +31,7 @@ class HomeFragment : Fragment() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
 
         Log.i("t", "klikRefreshHome")
-        (activity as MainActivity).getData()
+        (activity as MainActivity).getDataHome()
         return super.onOptionsItemSelected(item)
     }
 
