@@ -6,12 +6,10 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import androidx.fragment.app.Fragment
 import com.aircheck.R
 import com.aircheck.databinding.FragmentSettingsBinding
 import com.google.android.material.button.MaterialButtonToggleGroup
-import com.google.android.material.slider.RangeSlider
 import android.content.res.Resources
 import android.util.DisplayMetrics
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -35,18 +33,6 @@ class SettingsFragment : Fragment() {
         val preferences = activity?.getPreferences(Context.MODE_PRIVATE)
         val editor = preferences?.edit()
 
-        val rangeSlider: RangeSlider = binding.sliderRange
-        val rangeTextView: TextView = binding.textSearchRange
-        rangeTextView.text = getString(R.string.res_search_range) + (" ${preferences?.getFloat("searchRange", 5.0F).toString()} ${preferences?.getString("Unit", "Km")}")
-        rangeSlider.values = listOf(preferences?.getFloat("searchRange", 5.0F))
-        rangeSlider.addOnChangeListener {
-                    _, _, _ ->
-                val values = rangeSlider.values
-                rangeTextView.text = getString(R.string.res_search_range) + (" ${values[0].toString()} ${preferences?.getString("Unit", "Km")}")
-                editor?.putFloat("searchRange", values[0])
-                editor?.apply()
-        }
-
         val kmButtonId = binding.buttonKm.id
         val milButtonId = binding.buttonMil.id
         val celButtonId = binding.buttonCelsius.id
@@ -64,13 +50,11 @@ class SettingsFragment : Fragment() {
                         editor?.putString("Unit", "Km")
                         Log.i("UNIT", "Km")
                         editor?.apply()
-                        rangeTextView.text = getString(R.string.res_search_range) + (" ${preferences?.getFloat("searchRange", 5.0F).toString()} ${preferences?.getString("Unit", "Km")}")
                     }
                     milButtonId -> {
                         editor?.putString("Unit", "Mil")
                         Log.i("UNIT", "Mil")
                         editor?.apply()
-                        rangeTextView.text = getString(R.string.res_search_range) + (" ${preferences?.getFloat("searchRange", 5.0F).toString()} ${preferences?.getString("Unit", "Km")}")
                     }
                 }
             }
