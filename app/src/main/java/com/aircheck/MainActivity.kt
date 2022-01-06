@@ -43,9 +43,8 @@ class MainActivity : AppCompatActivity() {
 
     /*
        TODO GPS nie działa prawidłowo na emulatorze, testować tylko na FIZYCZNEJ maszynie
-       TODO Zmiana others na inne wskaźniki (podobna lista elementów z innymi parametrami, c0, nh3, so2;
-       TODO mogą to być inne dane atmosferyczne
-       TODO Poprawa settings
+       TODO Naprawić klikanie settings (zmiana danych)
+       TODO Clean-up projektu
     */
 
 
@@ -89,7 +88,12 @@ class MainActivity : AppCompatActivity() {
 
                     response -> Log.i("resp", response)
                 pollutionData = Gson().fromJson(response, PollutionDataClass::class.java)
-                setPollutionData()
+                getPollutionData()
+
+                val hour = preferences.getFloat("forecastRange", 0F).toInt()
+                val pollution = preferences.getString("pollutionMain$hour", "NODATA")
+                findViewById<TextView>(R.id.text_pollution).text = pollution
+
             }, {
                     error -> Log.e("resp", error.toString())
                     AlertDialog.Builder(this)
@@ -108,7 +112,26 @@ class MainActivity : AppCompatActivity() {
 
                     response -> Log.i("resp", response)
                 metricsData = Gson().fromJson(response, MetricsDataClass::class.java)
-                setMetricsData()
+                getMetricsData()
+                getOthersData()
+
+                val hour = preferences.getFloat("forecastRange", 0F).toInt()
+                var temperature = preferences.getString("temperatureMain$hour", "0.0")?.toFloat()
+                if (preferences.getString("Temp", "Cel") == "Fah") {
+                    temperature = ((temperature!! * 9.0/5.0) + 32.0).toFloat()
+                }
+                val temperatureText = temperature.toString() + if (preferences.getString("Temp", "Cel") == "Cel")
+                    getString(R.string.res_celsius)
+                else
+                    getString(R.string.res_fahrenheit)
+
+                val humidity = preferences.getString("humidityMain$hour", "NODATA")
+                val pressure = preferences.getString("pressureMain$hour", "NODATA")
+
+                findViewById<TextView>(R.id.text_temperature).text = temperatureText
+                findViewById<TextView>(R.id.text_humidity).text = humidity
+                findViewById<TextView>(R.id.text_pressure).text = pressure
+
                 Toast.makeText(applicationContext, getString(R.string.res_sync_correct), Toast.LENGTH_SHORT).show()
             }, {
                     error -> Log.e("resp", error.toString())
@@ -123,11 +146,11 @@ class MainActivity : AppCompatActivity() {
                         .create()
                         .show()
             })
-
             try {
                 requestQueue.add(pollutionRequest)
                 requestQueue.add(metricsRequest)
-                getTime()
+                val (dayName, timeString) = getTime()
+                findViewById<TextView>(R.id.text_home_time).text = "$dayName, $timeString"
             }
             catch (e: Exception) {
                 Log.e("err", e.printStackTrace().toString())
@@ -171,7 +194,9 @@ class MainActivity : AppCompatActivity() {
             val metricsRequest = StringRequest(Request.Method.GET, metricsUrl, {
                     response -> Log.i("resp", response)
                 metricsData = Gson().fromJson(response, MetricsDataClass::class.java)
-                setOthersData()
+                getOthersData()
+                getMetricsData()
+
                 Toast.makeText(applicationContext, getString(R.string.res_sync_correct), Toast.LENGTH_SHORT).show()
             }, {
                     error -> Log.e("resp", error.toString())
@@ -180,16 +205,15 @@ class MainActivity : AppCompatActivity() {
                     .setMessage(R.string.res_no_internet_connection_message)
                     .setPositiveButton(
                         R.string.res_accept
-                    ) { _, _ ->
-
-                    }
+                    ) { _, _ ->}
                     .create()
                     .show()
             })
 
             try {
                 requestQueue.add(metricsRequest)
-                //getTime()
+                val (dayName, timeString) = getTime()
+                findViewById<TextView>(R.id.text_other_time).text = "$dayName, $timeString"
             }
             catch (e: Exception) {
                 Log.e("err", e.printStackTrace().toString())
@@ -225,7 +249,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun setOthersData() {
+    private fun getOthersData() {
         val editor = preferences.edit()
         val uviValue = metricsData.current.uvi
         val threadLevel = when {
@@ -237,8 +261,9 @@ class MainActivity : AppCompatActivity() {
         }
         val visibilityValue = metricsData.current.visibility
         val windSpeedValue = metricsData.current.wind_speed
-        val precipitationValue = when (metricsData.current.weather[0].main) {
-            "Rain" -> metricsData.current.rain.`1h`
+        val weatherValue = metricsData.current.weather[0].main
+        val precipitationValue = when (weatherValue) {
+            "Rain", "Thunderstorm" -> metricsData.current.rain.`1h`
             "Snow" -> metricsData.current.snow.`1h`
             else -> {
                 null
@@ -247,21 +272,24 @@ class MainActivity : AppCompatActivity() {
         editor.putString("uviOthers0", "$uviValue")
         editor.putString("visibilityOthers0", "$visibilityValue")
         editor.putString("windSpeedOthers0", "$windSpeedValue")
+        editor.putString("weatherOthers0", weatherValue)
         if (precipitationValue != null) editor.putString("precipitationOthers0", "$precipitationValue")
         else editor.putString("precipitationOthers0", "NoPrec")
         editor.apply()
 
-        for (iter in 0..23) {
-            val uviString = "uviOthers${iter+1}"
-            val visibilityString = "visibilityOthers${iter+1}"
-            val windSpeedString = "windSpeedOthers${iter+1}"
-            val precipitationString = "precipitationOthers${iter+1}"
-            val uviValueForecast = metricsData.hourly[iter].uvi
-            val visibilityValueForecast = metricsData.hourly[iter].visibility
-            val windSpeedValueForecast = metricsData.hourly[iter].wind_speed
-            val precipitationValueForecast = when (metricsData.hourly[iter].weather[0].main) {
-                "Rain" -> metricsData.hourly[iter].rain.`1h`
-                "Snow" -> metricsData.hourly[iter].snow.`1h`
+        for (index in 0..23) {
+            val uviString = "uviOthers${index+1}"
+            val visibilityString = "visibilityOthers${index+1}"
+            val windSpeedString = "windSpeedOthers${index+1}"
+            val precipitationString = "precipitationOthers${index+1}"
+            val weatherString = "weatherOthers${index+1}"
+            val uviValueForecast = metricsData.hourly[index].uvi
+            val visibilityValueForecast = metricsData.hourly[index].visibility
+            val windSpeedValueForecast = metricsData.hourly[index].wind_speed
+            val weatherValueForecast = metricsData.hourly[index].weather[0].main
+            val precipitationValueForecast = when (weatherValueForecast) {
+                "Rain" -> metricsData.hourly[index].rain.`1h`
+                "Snow" -> metricsData.hourly[index].snow.`1h`
                 else -> {
                     null
                 }
@@ -270,26 +298,22 @@ class MainActivity : AppCompatActivity() {
             editor.putString(visibilityString, "$visibilityValueForecast")
             editor.putString(windSpeedString, "$windSpeedValueForecast")
             editor.putString(precipitationString, "$precipitationValueForecast")
+            editor.putString(weatherString, weatherValueForecast)
             editor.apply()
         }
     }
 
-    private fun setPollutionData() {
+    private fun getPollutionData() {
         val editor = preferences.edit()
-        for (iter in 0..24) {
-            val tagString = "pollutionMain$iter"
-            val pollutionValue = pollutionData.list[iter].components.pm10
+        for (index in 0..24) {
+            val tagString = "pollutionMain$index"
+            val pollutionValue = pollutionData.list[index].components.pm10
             editor.putString(tagString, "$pollutionValue µg/m³")
             editor.apply()
         }
-
-        val hour = preferences.getFloat("forecastRange", 0F).toInt()
-        val pollution = preferences.getString("pollutionMain$hour", "NODATA")
-
-        findViewById<TextView>(R.id.text_pollution).text = pollution
     }
 
-    private fun setMetricsData() {
+    private fun getMetricsData() {
         val editor = preferences.edit()
         val temperatureValue = metricsData.current.temp
         val humidityValue = metricsData.current.humidity
@@ -299,40 +323,22 @@ class MainActivity : AppCompatActivity() {
         editor.putString("pressureMain0", "$pressureValue hPa")
         editor.apply()
 
-        for (iter in 0..23) {
-            val temperatureString = "temperatureMain${iter+1}"
-            val humidityString = "humidityMain${iter+1}"
-            val pressureString = "pressureMain${iter+1}"
-            val temperatureValueForecast = metricsData.hourly[iter].temp
-            val humidityValueForecast = metricsData.hourly[iter].humidity
-            val pressureValueForecast = metricsData.hourly[iter].pressure
+        for (index in 0..23) {
+            val temperatureString = "temperatureMain${index+1}"
+            val humidityString = "humidityMain${index+1}"
+            val pressureString = "pressureMain${index+1}"
+            val temperatureValueForecast = metricsData.hourly[index].temp
+            val humidityValueForecast = metricsData.hourly[index].humidity
+            val pressureValueForecast = metricsData.hourly[index].pressure
             editor.putString(temperatureString, "$temperatureValueForecast")
             editor.putString(humidityString, "$humidityValueForecast%")
             editor.putString(pressureString, "$pressureValueForecast hPa")
             editor.apply()
         }
-
-        val hour = preferences.getFloat("forecastRange", 0F).toInt()
-        var temperature = preferences.getString("temperatureMain$hour", "0.0")?.toFloat()
-        if (preferences.getString("Temp", "Cel") == "Fah") {
-            temperature = ((temperature!! * 9.0/5.0) + 32.0).toFloat()
-        }
-        val temperatureText = temperature.toString() + if (preferences.getString("Temp", "Cel") == "Cel")
-            getString(R.string.res_celsius)
-        else
-            getString(R.string.res_fahrenheit)
-
-        val humidity = preferences.getString("humidityMain$hour", "NODATA")
-        val pressure = preferences.getString("pressureMain$hour", "NODATA")
-
-        findViewById<TextView>(R.id.text_temperature).text = temperatureText
-        findViewById<TextView>(R.id.text_humidity).text = humidity
-        findViewById<TextView>(R.id.text_pressure).text = pressure
-
     }
 
     @SuppressLint("SetTextI18n")
-    private fun getTime() {
+    private fun getTime(): Pair<String, String?> {
         val cal = Calendar.getInstance()
         val editor = preferences.edit()
         var hour = cal.get(Calendar.HOUR_OF_DAY).toString()
@@ -383,16 +389,16 @@ class MainActivity : AppCompatActivity() {
                 6 -> dayForecastName = getString(R.string.res_Friday)
                 7 -> dayForecastName = getString(R.string.res_Saturday)
             }
-            findViewById<TextView>(R.id.text_time).text = "$dayForecastName, $timeString"
+            return dayForecastName to timeString
         }
         else
-            findViewById<TextView>(R.id.text_time).text = "$dayName, $timeString"
+            return dayName to timeString
     }
 
     private fun getLocation(): Pair<Location?, Boolean> {
         var location: Location? = null
         val providers = locationManager.allProviders
-        var securityError = false
+        val securityError = false
         try
         {
             for (i in providers.indices.reversed()) {
