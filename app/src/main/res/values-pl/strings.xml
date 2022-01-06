@@ -5,7 +5,7 @@
     <string name="label_settings">USTAWIENIA</string>
     <string name="title_other">INNE</string>
     <string name="res_welcome_string">Jaka jest dzisiaj pogoda?</string>
-    <string name="res_other_installations">Inne instalcje</string>
+    <string name="res_other_installations">Inne dane</string>
     <string name="res_search_range">Zasięg poszukiwań</string>
     <string name="res_units">Jednoski</string>
     <string name="res_language">Język</string>
@@ -14,8 +14,25 @@
     <string name="res_cancel">ANULUJ</string>
     <string name="res_location_needed">Wymagana zgoda na lokalizację</string>
     <string name="res_location_message">Ta aplikacja wymaga przetwarzania lokazliacji, potwierdź aby korzystać z aplikacji</string>
-    <string name="res_location_no_permissions">Brak zgody</string>
+    <string name="res_location_no_permissions_title">Brak zgody</string>
     <string name="res_location_no_permissions_message">Ta aplikacja wymaga przetwarzania lokazliacji. Włącz je w ustawieniach aplikacji (Android)</string>
-    <string name="res_no_location">Nie znaleniono lokalizacji</string>
+    <string name="res_no_location_title">Nie znaleniono lokalizacji</string>
     <string name="res_no_location_message">Nie znaleniono lokalizacji, sprawdź sygnał GPS i spróbuj ponownie</string>
+    <string name="res_sync_correct">Dane synchronizowano pomyślnie</string>
+    <string name="res_sync_error">Wystąpił błąd, spróbuj ponownie później</string>
+    <string name="res_forecast_info">Prognoza danych</string>
+    <string name="res_Monday">Poniedziałek</string>
+    <string name="res_Tuesday">Wtorek</string>
+    <string name="res_Wednesday">Środa</string>
+    <string name="res_Thursday">Czwartek</string>
+    <string name="res_Friday">Piątek</string>
+    <string name="res_Saturday">Sobota</string>
+    <string name="res_Sunday">Niedziela</string>
+    <string name="res_no_internet_connection_title">Brak połączenia z internetem</string>
+    <string name="res_no_internet_connection_message">Aplikacja nie mogłą połączyć się z internetem. Spróbuj ponownie później</string>
+    <string name="res_uv_low">Niskie zagrożenie</string>
+    <string name="res_uv_moderate">Średnie zagrożenie</string>
+    <string name="res_uv_high">Wysokie zagrożenie</string>
+    <string name="res_uv_very_high">Bardzo duże zagrożenie</string>
+    <string name="res_uv_extreme">Ekstremalne zagrożenie</string>
 </resources>

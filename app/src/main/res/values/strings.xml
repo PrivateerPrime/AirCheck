@@ -10,7 +10,7 @@
     <string name="res_barometer" translatable="false">Barometer</string>
     <string name="res_refresh" translatable="false">Refresh</string>
     <string name="res_welcome_string">"How's the air today?"</string>
-    <string name="res_other_installations">"Other installations"</string>
+    <string name="res_other_installations">Other data</string>
     <string name="res_search_range">"Searching range"</string>
     <string name="res_units">Units</string>
     <string name="res_km" translatable="false">Km</string>
@@ -26,8 +26,25 @@
     <string name="res_accept" translatable="false">OK</string>
     <string name="res_location_needed">Location Permission Needed</string>
     <string name="res_location_message">This app needs the location permission, please accept to use app</string>
-    <string name="res_location_no_permissions">No permissions</string>
+    <string name="res_location_no_permissions_title">No permissions</string>
     <string name="res_location_no_permissions_message">This app needs the location permission. Give them in Android app settings</string>
-    <string name="res_no_location">No location found</string>
+    <string name="res_no_location_title">No location found</string>
     <string name="res_no_location_message">No location found, check your GPS signal and try again</string>
+    <string name="res_sync_correct">Data synchronized correctly</string>
+    <string name="res_sync_error">Error occurred, try again later</string>
+    <string name="res_forecast_info">Data forecast</string>
+    <string name="res_Monday">Monday</string>
+    <string name="res_Tuesday">Tuesday</string>
+    <string name="res_Wednesday">Wednesday</string>
+    <string name="res_Thursday">Thursday</string>
+    <string name="res_Friday">Friday</string>
+    <string name="res_Saturday">Saturday</string>
+    <string name="res_Sunday">Sunday</string>
+    <string name="res_no_internet_connection_title">No internet connection</string>
+    <string name="res_no_internet_connection_message">App was unable to connect to the internet. Try again later</string>
+    <string name="res_uv_low">Low risk</string>
+    <string name="res_uv_moderate">Moderate risk</string>
+    <string name="res_uv_high">High risk</string>
+    <string name="res_uv_very_high">Very high risk</string>
+    <string name="res_uv_extreme">Extreme risk</string>
 </resources>

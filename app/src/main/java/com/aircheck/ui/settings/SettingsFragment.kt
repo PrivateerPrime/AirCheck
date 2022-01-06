@@ -14,8 +14,6 @@ import com.google.android.material.button.MaterialButtonToggleGroup
 import com.google.android.material.slider.RangeSlider
 import android.content.res.Resources
 import android.util.DisplayMetrics
-import androidx.lifecycle.ViewModelProvider
-import com.google.android.material.button.MaterialButton
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import java.util.*
 
@@ -32,17 +30,8 @@ class SettingsFragment : Fragment() {
             inflater: LayoutInflater,
             container: ViewGroup?,
             savedInstanceState: Bundle?
-    ): View? {
-//        settingsViewModel =
-//                ViewModelProvider(this).get(SettingsViewModel::class.java)
-
+    ): View {
         _binding = FragmentSettingsBinding.inflate(inflater, container, false)
-
-//        val textView: TextView = binding.textSearchRange
-//        settingsViewModel.text.observe(viewLifecycleOwner, Observer {
-//            textView.text = it
-//        })
-
         val preferences = activity?.getPreferences(Context.MODE_PRIVATE)
         val editor = preferences?.edit()
 
@@ -56,7 +45,6 @@ class SettingsFragment : Fragment() {
                 rangeTextView.text = getString(R.string.res_search_range) + (" ${values[0].toString()} ${preferences?.getString("Unit", "Km")}")
                 editor?.putFloat("searchRange", values[0])
                 editor?.apply()
-//                Log.i("Range", values[0].toString())
         }
 
         val kmButtonId = binding.buttonKm.id
@@ -122,8 +110,6 @@ class SettingsFragment : Fragment() {
             }
         }
 
-        val buttonEnglish: MaterialButton = binding.buttonEnglish as MaterialButton
-        val buttonPolish: MaterialButton = binding.buttonPolish as MaterialButton
 
         binding.buttonEnglish.setOnClickListener {
             if (language != "en")

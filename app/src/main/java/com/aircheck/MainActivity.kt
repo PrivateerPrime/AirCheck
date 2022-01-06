@@ -11,8 +11,6 @@ import android.location.LocationManager
 import android.os.Bundle
 import android.util.DisplayMetrics
 import android.util.Log
-import android.view.Menu
-import android.view.MenuItem
 import android.widget.TextView
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import androidx.appcompat.app.AppCompatActivity
@@ -22,48 +20,42 @@ import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.aircheck.databinding.ActivityMainBinding
 import com.android.volley.RequestQueue
-import com.android.volley.toolbox.BasicNetwork
-import com.android.volley.toolbox.DiskBasedCache
-import com.android.volley.toolbox.HurlStack
-import com.android.volley.toolbox.StringRequest
 import com.google.gson.Gson
 import java.lang.Exception
 import java.util.*
-import kotlin.collections.HashMap
 import android.content.pm.PackageManager
 import android.location.LocationListener
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityCompat
+import com.android.volley.Request
+import com.android.volley.toolbox.*
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
     private lateinit var requestQueue: RequestQueue
-    private lateinit var installationData: InstallationData
+    lateinit var pollutionData: PollutionDataClass
+    lateinit var metricsData: MetricsDataClass
     private lateinit var preferences: SharedPreferences
     private lateinit var locationManager: LocationManager
 
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.top_app_bar, menu)
-        return super.onCreateOptionsMenu(menu)
-    }
 
     /*
-       TODO Dodać jeszcze jedno zapytanie API zwracające temperaturę, wilgotność, ciśnienie na następne 24 godziny
        TODO GPS nie działa prawidłowo na emulatorze, testować tylko na FIZYCZNEJ maszynie
-       TODO Dodać tekst pokazujący godzinę/datę/czas od ostatniej synhcronizacji
+       TODO Zmiana others na inne wskaźniki (podobna lista elementów z innymi parametrami, c0, nh3, so2;
+       TODO mogą to być inne dane atmosferyczne
+       TODO Poprawa settings
     */
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
 
-        Log.i("t", "klikRefresh")
-        getData()
-        return super.onOptionsItemSelected(item)
-    }
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         preferences = getPreferences(Context.MODE_PRIVATE)
-        if (getPreferences(Context.MODE_PRIVATE).getString("Lan", "en") == "pl")
-            setLocale()
+        if (preferences.getString("Lan", "en") == "pl")
+            setLocale("pl")
+        else
+            setLocale("en")
         super.onCreate(savedInstanceState)
 
         binding = ActivityMainBinding.inflate(layoutInflater)
@@ -83,23 +75,351 @@ class MainActivity : AppCompatActivity() {
 
         // kolejka wysyłań API
 
-        val cache = DiskBasedCache(cacheDir, 1024*1024)
-        val network = BasicNetwork((HurlStack()))
-
-        requestQueue = RequestQueue(cache, network).apply {
+        requestQueue = RequestQueue(DiskBasedCache(cacheDir, 1024*1024), BasicNetwork((HurlStack()))).apply {
             start()
         }
     }
 
-    private fun setLocale() {
-        val locale = Locale("pl")
-        val res: Resources = resources
-        val dm: DisplayMetrics = res.displayMetrics
-        val conf: Configuration = res.configuration
-        conf.locale = locale
-        Locale.setDefault(locale)
-        conf.setLayoutDirection(locale)
-        res.updateConfiguration(conf, dm)
+    fun getDataHome() {
+        val (location, securityError) = getLocation()
+        if (location != null) {
+            Log.i("lat", location.latitude.toString()); Log.i("lng", location.longitude.toString())
+            val pollutionUrl = "https://api.openweathermap.org/data/2.5/air_pollution/forecast?lat=${location.latitude}&lon=${location.longitude}&appid=0320e3284b492358bcc9752cd5796e03"
+            val pollutionRequest = StringRequest(Request.Method.GET, pollutionUrl, {
+
+                    response -> Log.i("resp", response)
+                pollutionData = Gson().fromJson(response, PollutionDataClass::class.java)
+                setPollutionData()
+            }, {
+                    error -> Log.e("resp", error.toString())
+                    AlertDialog.Builder(this)
+                        .setTitle(R.string.res_no_internet_connection_title)
+                        .setMessage(R.string.res_no_internet_connection_message)
+                        .setPositiveButton(
+                            R.string.res_accept
+                        ) { _, _ ->
+
+                        }
+                        .create()
+                        .show()
+            })
+            val metricsUrl = "https://api.openweathermap.org/data/2.5/onecall?lat=${location.latitude}&lon=${location.longitude}&exclude=minutely,daily,alerts&units=metric&appid=0320e3284b492358bcc9752cd5796e03"
+            val metricsRequest = StringRequest(Request.Method.GET, metricsUrl, {
+
+                    response -> Log.i("resp", response)
+                metricsData = Gson().fromJson(response, MetricsDataClass::class.java)
+                setMetricsData()
+                Toast.makeText(applicationContext, getString(R.string.res_sync_correct), Toast.LENGTH_SHORT).show()
+            }, {
+                    error -> Log.e("resp", error.toString())
+                    AlertDialog.Builder(this)
+                        .setTitle(R.string.res_no_internet_connection_title)
+                        .setMessage(R.string.res_no_internet_connection_message)
+                        .setPositiveButton(
+                            R.string.res_accept
+                        ) { _, _ ->
+
+                        }
+                        .create()
+                        .show()
+            })
+
+            try {
+                requestQueue.add(pollutionRequest)
+                requestQueue.add(metricsRequest)
+                getTime()
+            }
+            catch (e: Exception) {
+                Log.e("err", e.printStackTrace().toString())
+                Toast.makeText(applicationContext, getString(R.string.res_sync_error), Toast.LENGTH_SHORT).show()
+            }
+        }
+        else {
+            if (!securityError)
+            {
+                AlertDialog.Builder(this)
+                    .setTitle(R.string.res_no_location_title)
+                    .setMessage(R.string.res_no_location_message)
+                    .setPositiveButton(
+                        R.string.res_accept
+                    ) { _, _ ->
+
+                    }
+                    .create()
+                    .show()
+            }
+            else {
+                AlertDialog.Builder(this)
+                    .setTitle(R.string.res_location_no_permissions_title)
+                    .setMessage(R.string.res_location_no_permissions_message)
+                    .setPositiveButton(
+                        R.string.res_accept
+                    ) { _, _ ->
+
+                    }
+                    .create()
+                    .show()
+            }
+        }
+    }
+
+    fun getDataOthers() {
+        val (location, securityError) = getLocation()
+        if (location != null) {
+            Log.i("lat", location.latitude.toString()); Log.i("lng", location.longitude.toString())
+            val metricsUrl = "https://api.openweathermap.org/data/2.5/onecall?lat=${location.latitude}&lon=${location.longitude}&exclude=minutely,daily,alerts&units=metric&appid=0320e3284b492358bcc9752cd5796e03"
+            val metricsRequest = StringRequest(Request.Method.GET, metricsUrl, {
+                    response -> Log.i("resp", response)
+                metricsData = Gson().fromJson(response, MetricsDataClass::class.java)
+                setOthersData()
+                Toast.makeText(applicationContext, getString(R.string.res_sync_correct), Toast.LENGTH_SHORT).show()
+            }, {
+                    error -> Log.e("resp", error.toString())
+                AlertDialog.Builder(this)
+                    .setTitle(R.string.res_no_internet_connection_title)
+                    .setMessage(R.string.res_no_internet_connection_message)
+                    .setPositiveButton(
+                        R.string.res_accept
+                    ) { _, _ ->
+
+                    }
+                    .create()
+                    .show()
+            })
+
+            try {
+                requestQueue.add(metricsRequest)
+                //getTime()
+            }
+            catch (e: Exception) {
+                Log.e("err", e.printStackTrace().toString())
+                Toast.makeText(applicationContext, getString(R.string.res_sync_error), Toast.LENGTH_SHORT).show()
+            }
+        }
+        else {
+            if (!securityError)
+            {
+                AlertDialog.Builder(this)
+                    .setTitle(R.string.res_no_location_title)
+                    .setMessage(R.string.res_no_location_message)
+                    .setPositiveButton(
+                        R.string.res_accept
+                    ) { _, _ ->
+
+                    }
+                    .create()
+                    .show()
+            }
+            else {
+                AlertDialog.Builder(this)
+                    .setTitle(R.string.res_location_no_permissions_title)
+                    .setMessage(R.string.res_location_no_permissions_message)
+                    .setPositiveButton(
+                        R.string.res_accept
+                    ) { _, _ ->
+
+                    }
+                    .create()
+                    .show()
+            }
+        }
+    }
+
+    private fun setOthersData() {
+        val editor = preferences.edit()
+        val uviValue = metricsData.current.uvi
+        val threadLevel = when {
+            uviValue < 3.0 -> getString(R.string.res_uv_low)
+            uviValue < 6.0 -> getString(R.string.res_uv_moderate)
+            uviValue < 8.0 -> getString(R.string.res_uv_high)
+            uviValue < 11.0 -> getString(R.string.res_uv_very_high)
+            else -> getString(R.string.res_uv_extreme)
+        }
+        val visibilityValue = metricsData.current.visibility
+        val windSpeedValue = metricsData.current.wind_speed
+        val precipitationValue = when (metricsData.current.weather[0].main) {
+            "Rain" -> metricsData.current.rain.`1h`
+            "Snow" -> metricsData.current.snow.`1h`
+            else -> {
+                null
+            }
+        }
+        editor.putString("uviOthers0", "$uviValue")
+        editor.putString("visibilityOthers0", "$visibilityValue")
+        editor.putString("windSpeedOthers0", "$windSpeedValue")
+        if (precipitationValue != null) editor.putString("precipitationOthers0", "$precipitationValue")
+        else editor.putString("precipitationOthers0", "NoPrec")
+        editor.apply()
+
+        for (iter in 0..23) {
+            val uviString = "uviOthers${iter+1}"
+            val visibilityString = "visibilityOthers${iter+1}"
+            val windSpeedString = "windSpeedOthers${iter+1}"
+            val precipitationString = "precipitationOthers${iter+1}"
+            val uviValueForecast = metricsData.hourly[iter].uvi
+            val visibilityValueForecast = metricsData.hourly[iter].visibility
+            val windSpeedValueForecast = metricsData.hourly[iter].wind_speed
+            val precipitationValueForecast = when (metricsData.hourly[iter].weather[0].main) {
+                "Rain" -> metricsData.hourly[iter].rain.`1h`
+                "Snow" -> metricsData.hourly[iter].snow.`1h`
+                else -> {
+                    null
+                }
+            }
+            editor.putString(uviString, "$uviValueForecast")
+            editor.putString(visibilityString, "$visibilityValueForecast")
+            editor.putString(windSpeedString, "$windSpeedValueForecast")
+            editor.putString(precipitationString, "$precipitationValueForecast")
+            editor.apply()
+        }
+    }
+
+    private fun setPollutionData() {
+        val editor = preferences.edit()
+        for (iter in 0..24) {
+            val tagString = "pollutionMain$iter"
+            val pollutionValue = pollutionData.list[iter].components.pm10
+            editor.putString(tagString, "$pollutionValue µg/m³")
+            editor.apply()
+        }
+
+        val hour = preferences.getFloat("forecastRange", 0F).toInt()
+        val pollution = preferences.getString("pollutionMain$hour", "NODATA")
+
+        findViewById<TextView>(R.id.text_pollution).text = pollution
+    }
+
+    private fun setMetricsData() {
+        val editor = preferences.edit()
+        val temperatureValue = metricsData.current.temp
+        val humidityValue = metricsData.current.humidity
+        val pressureValue = metricsData.current.pressure
+        editor.putString("temperatureMain0", "$temperatureValue")
+        editor.putString("humidityMain0", "$humidityValue%")
+        editor.putString("pressureMain0", "$pressureValue hPa")
+        editor.apply()
+
+        for (iter in 0..23) {
+            val temperatureString = "temperatureMain${iter+1}"
+            val humidityString = "humidityMain${iter+1}"
+            val pressureString = "pressureMain${iter+1}"
+            val temperatureValueForecast = metricsData.hourly[iter].temp
+            val humidityValueForecast = metricsData.hourly[iter].humidity
+            val pressureValueForecast = metricsData.hourly[iter].pressure
+            editor.putString(temperatureString, "$temperatureValueForecast")
+            editor.putString(humidityString, "$humidityValueForecast%")
+            editor.putString(pressureString, "$pressureValueForecast hPa")
+            editor.apply()
+        }
+
+        val hour = preferences.getFloat("forecastRange", 0F).toInt()
+        var temperature = preferences.getString("temperatureMain$hour", "0.0")?.toFloat()
+        if (preferences.getString("Temp", "Cel") == "Fah") {
+            temperature = ((temperature!! * 9.0/5.0) + 32.0).toFloat()
+        }
+        val temperatureText = temperature.toString() + if (preferences.getString("Temp", "Cel") == "Cel")
+            getString(R.string.res_celsius)
+        else
+            getString(R.string.res_fahrenheit)
+
+        val humidity = preferences.getString("humidityMain$hour", "NODATA")
+        val pressure = preferences.getString("pressureMain$hour", "NODATA")
+
+        findViewById<TextView>(R.id.text_temperature).text = temperatureText
+        findViewById<TextView>(R.id.text_humidity).text = humidity
+        findViewById<TextView>(R.id.text_pressure).text = pressure
+
+    }
+
+    @SuppressLint("SetTextI18n")
+    private fun getTime() {
+        val cal = Calendar.getInstance()
+        val editor = preferences.edit()
+        var hour = cal.get(Calendar.HOUR_OF_DAY).toString()
+        var minute = cal.get(Calendar.MINUTE).toString()
+        if (hour.toInt() < 10)
+            hour = "0$hour"
+        if (minute.toInt() < 10)
+            minute = "0$minute"
+        val day: Int = cal.get(Calendar.DAY_OF_WEEK)
+        lateinit var dayName: String
+        when (cal.get(Calendar.DAY_OF_WEEK)) {
+            1 -> dayName = getString(R.string.res_Sunday)
+            2 -> dayName = getString(R.string.res_Monday)
+            3 -> dayName = getString(R.string.res_Tuesday)
+            4 -> dayName = getString(R.string.res_Wednesday)
+            5 -> dayName = getString(R.string.res_Thursday)
+            6 -> dayName = getString(R.string.res_Friday)
+            7 -> dayName = getString(R.string.res_Saturday)
+        }
+
+        editor.putString("time0", "$hour:$minute")
+        editor.putInt("day0", day)
+        editor.apply()
+        for (i in 1..24) {
+            var hourForecast = ((cal.get(Calendar.HOUR_OF_DAY) + i) % 24).toString()
+            if (hourForecast.toInt() < 10)
+                hourForecast = "0$hourForecast"
+            var dayForecast = cal.get(Calendar.DAY_OF_WEEK)
+            if ((cal.get(Calendar.HOUR_OF_DAY) + i) >= 24) {
+                dayForecast = (dayForecast + 1) % 7
+            }
+            editor.putString("time${i}", "$hourForecast:00")
+            editor.putInt("day${i}", dayForecast)
+            editor.apply()
+        }
+        val hourSlider = preferences.getFloat("forecastRange", 0F).toInt()
+        val timeString = preferences.getString("time$hourSlider", "NODATA")
+        if ((cal.get(Calendar.HOUR_OF_DAY) + hourSlider) >= 24) {
+            val dayForecast = preferences.getInt("day${hourSlider}", 0)
+            lateinit var dayForecastName: String
+            when (dayForecast) {
+                0 -> dayForecastName = getString(R.string.res_Saturday)
+                1 -> dayForecastName = getString(R.string.res_Sunday)
+                2 -> dayForecastName = getString(R.string.res_Monday)
+                3 -> dayForecastName = getString(R.string.res_Tuesday)
+                4 -> dayForecastName = getString(R.string.res_Wednesday)
+                5 -> dayForecastName = getString(R.string.res_Thursday)
+                6 -> dayForecastName = getString(R.string.res_Friday)
+                7 -> dayForecastName = getString(R.string.res_Saturday)
+            }
+            findViewById<TextView>(R.id.text_time).text = "$dayForecastName, $timeString"
+        }
+        else
+            findViewById<TextView>(R.id.text_time).text = "$dayName, $timeString"
+    }
+
+    private fun getLocation(): Pair<Location?, Boolean> {
+        var location: Location? = null
+        val providers = locationManager.allProviders
+        var securityError = false
+        try
+        {
+            for (i in providers.indices.reversed()) {
+                location = locationManager.getLastKnownLocation(providers[i])
+                if (location != null) break
+            }
+        } catch (e: SecurityException) {
+            AlertDialog.Builder(this)
+                .setTitle(R.string.res_location_no_permissions_title)
+                .setMessage(R.string.res_location_no_permissions_message)
+                .setPositiveButton(
+                    R.string.res_accept
+                ) { _, _ ->
+
+                }
+                .create()
+                .show()
+            return null to true
+        }
+        return location to securityError
+    }
+
+    private val locationListener: LocationListener = object : LocationListener {
+        override fun onLocationChanged(location: Location) {Log.i("loc", location.latitude.toString() + " " + location.longitude)}
+        override fun onStatusChanged(provider: String, status: Int, extras: Bundle) {}
+        override fun onProviderEnabled(provider: String) {}
+        override fun onProviderDisabled(provider: String) {}
     }
 
     private fun checkForPermissions() {
@@ -132,100 +452,13 @@ class MainActivity : AppCompatActivity() {
                     arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION),99)
             }
         }
-    }
-
-    @SuppressLint("SetTextI18n")
-    private fun setMainData() {
-        val indexPollution = installationData.current.values.find { it.name == "PM10" }?.value
-        val indexTemperature = installationData.current.values.find { it.name == "TEMPERATURE" }?.value
-        val indexHumidity = installationData.current.values.find { it.name == "HUMIDITY" }?.value
-        val indexPressure = installationData.current.values.find { it.name == "PRESSURE" }?.value
-        val forecastList = installationData.forecast.flatMap { it.values }.filter { it.name == "PM10" }
-        val editor = preferences.edit()
-        editor.putString("pollutionMain0", indexPollution.toString() + " µg/m³")
-        editor.putString("temperatureMain0", indexTemperature.toString() + " °C")
-        editor.putString("humidityMain0", indexHumidity.toString() + "%")
-        editor.putString("pressureMain0", indexPressure.toString() + " hPa")
-        editor.apply()
-        var it = 1
-        for (item in forecastList) {
-            val tagString = "pollutionMain$it"
-            editor.putString(tagString, item.value.toString() + " µg/m³")
-            editor.apply()
-            it++
-        }
-
-        val hour = preferences.getFloat("forecastRange", 0F).toInt()
-        val tempPollution = preferences.getString("pollutionMain$hour", "NODATA")
-        val tempTemperature = preferences.getString("temperatureMain$hour", "NODATA")
-        val tempHumidity = preferences.getString("humidityMain$hour", "NODATA")
-        val tempPressure = preferences.getString("pressureMain$hour", "NODATA")
-
-        findViewById<TextView>(R.id.text_pollution).text = tempPollution
-        findViewById<TextView>(R.id.text_temperature).text = tempTemperature
-        findViewById<TextView>(R.id.text_humidity).text = tempHumidity
-        findViewById<TextView>(R.id.text_pressure).text = tempPressure
-    }
-
-    private val locationListener: LocationListener = object : LocationListener {
-        override fun onLocationChanged(location: Location) {Log.i("loc", location.latitude.toString() + " " + location.longitude)}
-        override fun onStatusChanged(provider: String, status: Int, extras: Bundle) {}
-        override fun onProviderEnabled(provider: String) {}
-        override fun onProviderDisabled(provider: String) {}
-    }
-
-    @SuppressLint("MissingPermission")
-    private fun getData() {
-        val providers = locationManager.allProviders
-        var l: Location? = null
-        for (i in providers.indices.reversed()) {
-            l = locationManager.getLastKnownLocation(providers[i])
-            if (l != null) break
-        }
-        val gps = DoubleArray(2)
-        if (l != null) {
-            Log.i("lat", l.latitude.toString()); Log.i("lng", l.longitude.toString())
-            gps[0] = l.latitude
-            gps[1] = l.longitude
-
-            val maxDistanceKM: String = if (preferences.getString("Unit", "Km") == "Km")
-                preferences.getFloat("searchRange", 5.0F).toString()
-            else
-                (preferences.getFloat("searchRange", 5.0F)*1.609344).toString()
-            val url = "https://airapi.airly.eu/v2/measurements/nearest?lat=${l.latitude}&lng=${l.longitude}&maxDistanceKM=${maxDistanceKM}"
-            val stringRequest = object: StringRequest(Method.GET, url, {
-                    response -> Log.i("resp", response)
-                                installationData = Gson().fromJson(response, InstallationData::class.java)
-                                setMainData()
-            }, {
-                    error -> Log.e("resp", error.toString())
-            }
-            )
-            {
-                override fun getHeaders(): MutableMap<String, String> {
-                    val headers = HashMap<String, String>()
-                    headers["apikey"] = "hILP4tnLsNjzv3Y1QHu1nG3TH1ehLpQ5"
-                    return headers
-                }
-            }
-            try {
-                requestQueue.add(stringRequest)
-            }
-            catch (e: Exception) {
-                Log.e("err", e.printStackTrace().toString())
-            }
-        }
         else {
-            AlertDialog.Builder(this)
-                .setTitle(R.string.res_no_location)
-                .setMessage(R.string.res_no_location_message)
-                .setPositiveButton(
-                    R.string.res_accept
-                ) { _, _ ->
-
-                }
-                .create()
-                .show()
+            locationManager.requestLocationUpdates(
+                LocationManager.NETWORK_PROVIDER,
+                0,
+                0F,
+                locationListener
+            )
         }
     }
 
@@ -243,13 +476,13 @@ class MainActivity : AppCompatActivity() {
                     locationManager.requestLocationUpdates(
                         LocationManager.NETWORK_PROVIDER,
                         0,
-                        10F,
+                        0F,
                         locationListener
                     )
                 }
                 else {
                     AlertDialog.Builder(this)
-                        .setTitle(R.string.res_location_no_permissions)
+                        .setTitle(R.string.res_location_no_permissions_title)
                         .setMessage(R.string.res_location_no_permissions_message)
                         .setPositiveButton(
                             R.string.res_accept
@@ -262,5 +495,16 @@ class MainActivity : AppCompatActivity() {
             }
         }
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+    }
+
+    private fun setLocale(lan: String) {
+        val locale = Locale(lan)
+        val res: Resources = resources
+        val dm: DisplayMetrics = res.displayMetrics
+        val conf: Configuration = res.configuration
+        conf.setLocale(locale)
+        Locale.setDefault(locale)
+        conf.setLayoutDirection(locale)
+        res.updateConfiguration(conf, dm)
     }
 }

@@ -20,12 +20,12 @@ class OtherFragment : Fragment() {
     private val binding get() = _binding!!
 
     override fun onCreateView(
-            inflater: LayoutInflater,
-            container: ViewGroup?,
-            savedInstanceState: Bundle?
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
     ): View? {
         otherViewModel =
-                ViewModelProvider(this).get(OtherViewModel::class.java)
+            ViewModelProvider(this).get(OtherViewModel::class.java)
 
         _binding = FragmentOtherBinding.inflate(inflater, container, false)
         val root: View = binding.root
