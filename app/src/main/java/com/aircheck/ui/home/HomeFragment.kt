@@ -1,11 +1,11 @@
 package com.aircheck.ui.home
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.util.Log
 import android.view.*
-import android.widget.TextView
 import androidx.fragment.app.Fragment
 import com.aircheck.MainActivity
 import com.aircheck.R
@@ -15,11 +15,8 @@ import java.lang.NumberFormatException
 
 class HomeFragment : Fragment() {
 
-//    private lateinit var homeViewModel: HomeViewModel
     private var _binding: FragmentHomeBinding? = null
 
-    // This property is only valid between onCreateView and
-    // onDestroyView.
     private val binding get() = _binding!!
     private lateinit var preferences: SharedPreferences
 
@@ -35,6 +32,7 @@ class HomeFragment : Fragment() {
         return super.onOptionsItemSelected(item)
     }
 
+    @SuppressLint("SetTextI18n")
     override fun onCreateView(
             inflater: LayoutInflater,
             container: ViewGroup?,
@@ -48,13 +46,13 @@ class HomeFragment : Fragment() {
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
 
 
-        val textPollution: TextView = binding.textPollution
-        val textTemperature: TextView = binding.textTemperature
-        val textHumidity: TextView = binding.textHumidity
-        val textPressure: TextView = binding.textPressure
-        val textTime: TextView = binding.textTime
+        val textPollution = binding.textPollution
+        val textTemperature = binding.textTemperature
+        val textHumidity = binding.textHumidity
+        val textPressure = binding.textPressure
+        val textTime = binding.textHomeTime
 
-        val hour = preferences.getFloat("forecastRange", 0F).toInt()
+        val hour = preferences.getFloat("forecastHomeRange", 0F).toInt()
         textPollution.text = preferences.getString("pollutionMain$hour", "NODATA")
         try {
             var temperature = preferences.getString("temperatureMain$hour", "0.0")?.toFloat()
@@ -87,11 +85,11 @@ class HomeFragment : Fragment() {
         textTime.text = "$dayName, ${preferences.getString("time$hour", "NODATA")}"
 
         val rangeSlider: RangeSlider = binding.sliderHome
-        rangeSlider.values = listOf(preferences.getFloat("forecastRange", 0F))
+        rangeSlider.values = listOf(preferences.getFloat("forecastHomeRange", 0F))
         rangeSlider.addOnChangeListener {
                 _, _, _ ->
             val values = rangeSlider.values
-            editor?.putFloat("forecastRange", values[0])
+            editor?.putFloat("forecastHomeRange", values[0])
             editor?.apply()
             val hourNew = values[0].toInt()
             textPollution.text = preferences.getString("pollutionMain$hourNew", "NODATA")

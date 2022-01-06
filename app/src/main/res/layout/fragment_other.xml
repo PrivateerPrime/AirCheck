@@ -6,8 +6,8 @@
     android:layout_height="match_parent"
     tools:context=".ui.other.OtherFragment">
 
-    <com.google.android.material.slider.Slider
-        android:id="@+id/slider_home2"
+    <com.google.android.material.slider.RangeSlider
+        android:id="@+id/slider_other"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
@@ -20,10 +20,10 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textOtherTime"
+        app:layout_constraintTop_toBottomOf="@+id/text_other_time"
         tools:ignore="SpeakableTextPresentCheck">
 
-    </com.google.android.material.slider.Slider>
+    </com.google.android.material.slider.RangeSlider>
 
     <View
         android:id="@+id/divider5"
@@ -70,7 +70,7 @@
 
 
     <ImageView
-        android:id="@+id/imageView6"
+        android:id="@+id/image_wind"
         android:layout_width="80dp"
         android:layout_height="80dp"
         android:layout_marginStart="16dp"
@@ -84,7 +84,7 @@
 
 
     <ImageView
-        android:id="@+id/imageView7"
+        android:id="@+id/image_weather"
         android:layout_width="80dp"
         android:layout_height="80dp"
         android:layout_marginStart="16dp"
@@ -97,7 +97,7 @@
         tools:srcCompat="@drawable/snow" />
 
     <ImageView
-        android:id="@+id/imageView8"
+        android:id="@+id/image_uv"
         android:layout_width="80dp"
         android:layout_height="80dp"
         android:layout_marginStart="16dp"
@@ -110,7 +110,7 @@
         tools:srcCompat="@drawable/uv" />
 
     <ImageView
-        android:id="@+id/imageView9"
+        android:id="@+id/image_visibility"
         android:layout_width="80dp"
         android:layout_height="80dp"
         android:layout_marginStart="16dp"
@@ -123,55 +123,55 @@
         tools:srcCompat="@drawable/visibility" />
 
     <TextView
-        android:id="@+id/text_otherWeather1"
+        android:id="@+id/text_wind"
         android:layout_width="229dp"
         android:layout_height="80dp"
         android:gravity="center"
         android:textColor="#000000"
-        android:textSize="40sp"
+        android:textSize="34sp"
         app:layout_constraintBottom_toTopOf="@+id/divider5"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/imageView6"
-        app:layout_constraintTop_toTopOf="@+id/imageView6"
+        app:layout_constraintStart_toEndOf="@+id/image_wind"
+        app:layout_constraintTop_toTopOf="@+id/image_wind"
         app:layout_constraintVertical_bias="0.0" />
 
     <TextView
-        android:id="@+id/text_otherWeather2"
+        android:id="@+id/text_weather"
         android:layout_width="229dp"
         android:layout_height="80dp"
         android:gravity="center"
         android:textColor="#000000"
-        android:textSize="40sp"
+        android:textSize="34sp"
         app:layout_constraintBottom_toTopOf="@+id/divider6"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/imageView7"
-        app:layout_constraintTop_toTopOf="@+id/imageView7" />
+        app:layout_constraintStart_toEndOf="@+id/image_weather"
+        app:layout_constraintTop_toTopOf="@+id/image_weather" />
 
     <TextView
-        android:id="@+id/text_otherWeather3"
+        android:id="@+id/text_uv"
         android:layout_width="229dp"
         android:layout_height="80dp"
         android:gravity="center"
         android:textColor="#000000"
-        android:textSize="40sp"
+        android:textSize="34sp"
         app:layout_constraintBottom_toTopOf="@+id/divider7"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/imageView8"
-        app:layout_constraintTop_toTopOf="@+id/imageView8" />
+        app:layout_constraintStart_toEndOf="@+id/image_uv"
+        app:layout_constraintTop_toTopOf="@+id/image_uv" />
 
     <TextView
-        android:id="@+id/text_otherWeather4"
+        android:id="@+id/text_visibility"
         android:layout_width="229dp"
         android:layout_height="80dp"
         android:gravity="center"
         android:textColor="#000000"
-        android:textSize="40sp"
+        android:textSize="34sp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/imageView9"
-        app:layout_constraintTop_toTopOf="@+id/imageView9" />
+        app:layout_constraintStart_toEndOf="@+id/image_visibility"
+        app:layout_constraintTop_toTopOf="@+id/image_visibility" />
 
     <TextView
-        android:id="@+id/textView"
+        android:id="@+id/text_other_inform"
         android:layout_width="wrap_content"
         android:layout_height="29dp"
         android:layout_marginStart="16dp"
@@ -183,12 +183,12 @@
         app:layout_constraintTop_toBottomOf="@+id/divider8" />
 
     <TextView
-        android:id="@+id/textOtherTime"
+        android:id="@+id/text_other_time"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:textColor="#000000"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView" />
+        app:layout_constraintTop_toBottomOf="@+id/text_other_inform" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

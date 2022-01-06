@@ -16,7 +16,7 @@
         android:textSize="48sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toEndOf="@+id/imageView"
+        app:layout_constraintStart_toEndOf="@+id/image_cloud"
         app:layout_constraintTop_toTopOf="parent" />
 
     <View
@@ -36,7 +36,7 @@
         android:textAlignment="center"
         android:textColor="@color/black"
         android:textSize="34sp"
-        app:layout_constraintEnd_toStartOf="@+id/imageView2"
+        app:layout_constraintEnd_toStartOf="@+id/image_temperature"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/divider" />
@@ -59,7 +59,7 @@
         android:textSize="34sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toEndOf="@+id/imageView3"
+        app:layout_constraintStart_toEndOf="@+id/image_humidity"
         app:layout_constraintTop_toBottomOf="@+id/divider2" />
 
     <View
@@ -78,7 +78,7 @@
         android:textAlignment="center"
         android:textColor="@color/black"
         android:textSize="34sp"
-        app:layout_constraintEnd_toStartOf="@+id/imageView4"
+        app:layout_constraintEnd_toStartOf="@+id/image_pressure"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/divider3" />
 
@@ -91,7 +91,7 @@
         tools:layout_editor_absoluteX="0dp" />
 
     <ImageView
-        android:id="@+id/imageView"
+        android:id="@+id/image_cloud"
         android:layout_width="0dp"
         android:layout_height="66dp"
         android:layout_marginTop="38dp"
@@ -103,7 +103,7 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <ImageView
-        android:id="@+id/imageView2"
+        android:id="@+id/image_temperature"
         android:layout_width="99dp"
         android:layout_height="66dp"
         android:layout_marginBottom="16dp"
@@ -114,7 +114,7 @@
         app:layout_constraintEnd_toEndOf="parent" />
 
     <ImageView
-        android:id="@+id/imageView3"
+        android:id="@+id/image_humidity"
         android:layout_width="wrap_content"
         android:layout_height="69dp"
         android:layout_marginStart="16dp"
@@ -125,7 +125,7 @@
         app:layout_constraintStart_toStartOf="parent" />
 
     <ImageView
-        android:id="@+id/imageView4"
+        android:id="@+id/image_pressure"
         android:layout_width="103dp"
         android:layout_height="66dp"
         android:layout_marginBottom="16dp"
@@ -148,13 +148,13 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/text_time"
+        app:layout_constraintTop_toBottomOf="@+id/text_home_time"
         tools:ignore="SpeakableTextPresentCheck">
 
     </com.google.android.material.slider.RangeSlider>
 
     <TextView
-        android:id="@+id/text_inform"
+        android:id="@+id/text_home_inform"
         android:layout_width="303dp"
         android:layout_height="29dp"
         android:layout_marginStart="16dp"
@@ -166,12 +166,12 @@
         app:layout_constraintTop_toBottomOf="@+id/divider4" />
 
     <TextView
-        android:id="@+id/text_time"
+        android:id="@+id/text_home_time"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:textColor="@color/black"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/text_inform" />
+        app:layout_constraintTop_toBottomOf="@+id/text_home_inform" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
