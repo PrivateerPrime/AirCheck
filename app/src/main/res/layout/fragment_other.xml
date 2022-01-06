@@ -71,56 +71,64 @@
 
     <ImageView
         android:id="@+id/imageView6"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="100dp"
+        android:layout_height="101dp"
         android:layout_marginStart="16dp"
         android:contentDescription="@string/res_cloud"
-        android:src="@drawable/ic_cloud_foreground"
+        android:src="@drawable/spedometer"
         app:layout_constraintBottom_toTopOf="@+id/divider5"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="1.0" />
+        app:layout_constraintVertical_bias="1.0"
+        app:srcCompat="@drawable/spedometer"
+        tools:srcCompat="@drawable/spedometer" />
 
     <ImageView
         android:id="@+id/imageView7"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
         android:layout_marginStart="16dp"
         android:contentDescription="@string/res_cloud"
-        android:src="@drawable/ic_cloud_foreground"
+        android:src="@drawable/rain"
         app:layout_constraintBottom_toTopOf="@+id/divider6"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/imageView6"
-        app:layout_constraintVertical_bias="1.0" />
+        app:layout_constraintVertical_bias="1.0"
+        app:srcCompat="@drawable/rain"
+        tools:srcCompat="@drawable/rain" />
 
     <ImageView
         android:id="@+id/imageView8"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
         android:layout_marginStart="16dp"
         android:contentDescription="@string/res_cloud"
-        android:src="@drawable/ic_cloud_foreground"
+        android:src="@drawable/uv"
         app:layout_constraintBottom_toTopOf="@+id/divider7"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/imageView7"
-        app:layout_constraintVertical_bias="1.0" />
+        app:layout_constraintVertical_bias="1.0"
+        app:srcCompat="@drawable/uv"
+        tools:srcCompat="@drawable/uv" />
 
     <ImageView
         android:id="@+id/imageView9"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
         android:layout_marginStart="16dp"
         android:contentDescription="@string/res_cloud"
-        android:src="@drawable/ic_cloud_foreground"
+        android:src="@drawable/visibility"
         app:layout_constraintBottom_toTopOf="@+id/divider8"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/divider7"
-        app:layout_constraintVertical_bias="1.0" />
+        app:layout_constraintVertical_bias="1.0"
+        app:srcCompat="@drawable/visibility"
+        tools:srcCompat="@drawable/visibility" />
 
     <TextView
         android:id="@+id/text_otherWeather1"
         android:layout_width="229dp"
-        android:layout_height="107dp"
+        android:layout_height="100dp"
         android:gravity="center"
         android:textSize="34sp"
         app:layout_constraintBottom_toTopOf="@+id/divider5"
@@ -131,7 +139,7 @@
     <TextView
         android:id="@+id/text_otherWeather2"
         android:layout_width="229dp"
-        android:layout_height="107dp"
+        android:layout_height="100dp"
         android:gravity="center"
         android:textSize="34sp"
         app:layout_constraintBottom_toTopOf="@+id/divider6"
@@ -142,7 +150,7 @@
     <TextView
         android:id="@+id/text_otherWeather3"
         android:layout_width="229dp"
-        android:layout_height="108dp"
+        android:layout_height="100dp"
         android:gravity="center"
         android:textSize="34sp"
         app:layout_constraintBottom_toTopOf="@+id/divider7"
@@ -153,7 +161,7 @@
     <TextView
         android:id="@+id/text_otherWeather4"
         android:layout_width="229dp"
-        android:layout_height="108dp"
+        android:layout_height="100dp"
         android:gravity="center"
         android:textSize="34sp"
         app:layout_constraintEnd_toEndOf="parent"
