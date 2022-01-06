@@ -83,6 +83,7 @@
         app:srcCompat="@drawable/spedometer"
         tools:srcCompat="@drawable/spedometer" />
 
+
     <ImageView
         android:id="@+id/imageView7"
         android:layout_width="100dp"
@@ -124,6 +125,7 @@
         app:layout_constraintVertical_bias="1.0"
         app:srcCompat="@drawable/visibility"
         tools:srcCompat="@drawable/visibility" />
+
 
     <TextView
         android:id="@+id/text_otherWeather1"
