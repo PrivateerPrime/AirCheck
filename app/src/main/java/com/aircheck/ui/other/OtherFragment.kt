@@ -35,11 +35,13 @@ class OtherFragment : Fragment() {
         val precipitation: TextView = binding.textOtherWeather2
         val uv: TextView = binding.textOtherWeather3
         val visibility: TextView = binding.textOtherWeather4
+        val time: TextView = binding.textOtherTime
 
         windSpeed.text = "13 m/s"
-        precipitation.text = "Light rain"
+        precipitation.text = "Snow"
         uv.text = "UV Index Val"
         visibility.text = "45 m"
+        time.text = "Time"
 
         return root
     }

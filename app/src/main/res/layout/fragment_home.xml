@@ -51,7 +51,7 @@
 
     <TextView
         android:id="@+id/text_humidity"
-        android:layout_width="340dp"
+        android:layout_width="320dp"
         android:layout_height="66dp"
         android:layout_marginTop="32dp"
         android:textAlignment="center"
@@ -116,8 +116,8 @@
     <ImageView
         android:id="@+id/imageView3"
         android:layout_width="wrap_content"
-        android:layout_height="66dp"
-        android:layout_marginStart="8dp"
+        android:layout_height="69dp"
+        android:layout_marginStart="16dp"
         android:layout_marginBottom="16dp"
         android:contentDescription="@string/res_hygrometer"
         android:src="@drawable/icons8_humidity_64"
