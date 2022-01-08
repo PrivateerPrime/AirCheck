@@ -1,4 +1,4 @@
-package com.aircheck
+package com.aircheck.apidata
 
 data class PollutionDataClass(
     val coord: Coord,

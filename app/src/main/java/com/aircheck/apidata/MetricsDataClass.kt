@@ -1,4 +1,4 @@
-package com.aircheck
+package com.aircheck.apidata
 
 data class MetricsDataClass(
     val current: Current,
