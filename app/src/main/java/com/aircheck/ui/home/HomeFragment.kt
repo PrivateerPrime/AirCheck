@@ -6,12 +6,12 @@ import android.content.SharedPreferences
 import android.os.Bundle
 import android.util.Log
 import android.view.*
+import android.widget.TextView
 import androidx.fragment.app.Fragment
 import com.aircheck.MainActivity
 import com.aircheck.R
 import com.aircheck.databinding.FragmentHomeBinding
 import com.google.android.material.slider.RangeSlider
-import java.lang.NumberFormatException
 
 class HomeFragment : Fragment() {
 
@@ -53,9 +53,26 @@ class HomeFragment : Fragment() {
         val textTime = binding.textHomeTime
 
         val hour = preferences.getFloat("forecastHomeRange", 0F).toInt()
+        setData(hour, textPollution, textTemperature, textHumidity, textPressure, textTime)
+
+        val rangeSlider: RangeSlider = binding.sliderHome
+        rangeSlider.values = listOf(preferences.getFloat("forecastHomeRange", 0F))
+        rangeSlider.addOnChangeListener {
+                _, _, _ ->
+            val values = rangeSlider.values
+            editor?.putFloat("forecastHomeRange", values[0])
+            editor?.apply()
+            val hourNew = values[0].toInt()
+            setData(hourNew, textPollution, textTemperature, textHumidity, textPressure, textTime)
+        }
+        return binding.root
+    }
+
+    @SuppressLint("SetTextI18n")
+    private fun setData(hour: Int, textPollution: TextView, textTemperature: TextView, textHumidity: TextView, textPressure: TextView, textTime: TextView) {
         textPollution.text = preferences.getString("pollutionMain$hour", "NODATA")
         try {
-            var temperature = preferences.getString("temperatureMain$hour", "0.0")?.toFloat()
+            var temperature = preferences.getString("temperatureMain$hour", "NODATA")?.toFloat()
             if (preferences.getString("Temp", "Cel") == "Fah") {
                 temperature = ((temperature!! * 9.0/5.0) + 32.0).toFloat()
             }
@@ -71,9 +88,10 @@ class HomeFragment : Fragment() {
         textHumidity.text = preferences.getString("humidityMain$hour", "NODATA")
         textPressure.text = preferences.getString("pressureMain$hour", "NODATA")
 
-        val day = preferences.getInt("day$hour", 0)
+        val day = preferences.getInt("day$hour", -1)
         var dayName = "REFRESH"
         when (day) {
+            0 -> dayName = getString(R.string.res_Saturday)
             1 -> dayName = getString(R.string.res_Sunday)
             2 -> dayName = getString(R.string.res_Monday)
             3 -> dayName = getString(R.string.res_Tuesday)
@@ -83,48 +101,6 @@ class HomeFragment : Fragment() {
             7 -> dayName = getString(R.string.res_Saturday)
         }
         textTime.text = "$dayName, ${preferences.getString("time$hour", "NODATA")}"
-
-        val rangeSlider: RangeSlider = binding.sliderHome
-        rangeSlider.values = listOf(preferences.getFloat("forecastHomeRange", 0F))
-        rangeSlider.addOnChangeListener {
-                _, _, _ ->
-            val values = rangeSlider.values
-            editor?.putFloat("forecastHomeRange", values[0])
-            editor?.apply()
-            val hourNew = values[0].toInt()
-            textPollution.text = preferences.getString("pollutionMain$hourNew", "NODATA")
-            try {
-                var temperature2 = preferences.getString("temperatureMain$hourNew", "0.0")?.toFloat()
-                if (preferences.getString("Temp", "Cel") == "Fah") {
-                    temperature2 = ((temperature2!! * 9.0 / 5.0) + 32.0).toFloat()
-                }
-                val temperatureText2 = temperature2.toString() + if (preferences.getString("Temp", "Cel") == "Cel")
-                    getString(R.string.res_celsius)
-                else
-                    getString(R.string.res_fahrenheit)
-                textTemperature.text = temperatureText2
-            }
-            catch (e: NumberFormatException) {
-                textTemperature.text = "NODATA"
-            }
-            textHumidity.text = preferences.getString("humidityMain$hourNew", "NODATA")
-            textPressure.text = preferences.getString("pressureMain$hourNew", "NODATA")
-
-            val day2 = preferences.getInt("day$hourNew", -1)
-            var dayName2 = "REFRESH"
-            when (day2) {
-                0 -> dayName2 = getString(R.string.res_Saturday)
-                1 -> dayName2 = getString(R.string.res_Sunday)
-                2 -> dayName2 = getString(R.string.res_Monday)
-                3 -> dayName2 = getString(R.string.res_Tuesday)
-                4 -> dayName2 = getString(R.string.res_Wednesday)
-                5 -> dayName2 = getString(R.string.res_Thursday)
-                6 -> dayName2 = getString(R.string.res_Friday)
-                7 -> dayName2 = getString(R.string.res_Saturday)
-            }
-            textTime.text = "$dayName2, ${preferences.getString("time$hourNew", "NODATA")}"
-        }
-        return binding.root
     }
 
     override fun onDestroyView() {

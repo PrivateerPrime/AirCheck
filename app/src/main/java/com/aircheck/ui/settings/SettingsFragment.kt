@@ -1,6 +1,7 @@
 package com.aircheck.ui.settings
 
 import android.content.Context
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -17,21 +18,18 @@ import java.util.*
 
 class SettingsFragment : Fragment() {
 
-//    private lateinit var settingsViewModel: SettingsViewModel
     private var _binding: FragmentSettingsBinding? = null
 
-    // This property is only valid between onCreateView and
-    // onDestroyView.
     private val binding get() = _binding!!
-
+    private lateinit var preferences: SharedPreferences
     override fun onCreateView(
             inflater: LayoutInflater,
             container: ViewGroup?,
             savedInstanceState: Bundle?
     ): View {
         _binding = FragmentSettingsBinding.inflate(inflater, container, false)
-        val preferences = activity?.getPreferences(Context.MODE_PRIVATE)
-        val editor = preferences?.edit()
+        preferences = requireActivity().getPreferences(Context.MODE_PRIVATE)
+        val editor = preferences.edit()
 
         val kmButtonId = binding.buttonKm.id
         val milButtonId = binding.buttonMil.id
@@ -42,7 +40,7 @@ class SettingsFragment : Fragment() {
         val units1Group: MaterialButtonToggleGroup = binding.toggleGroupUnits1
         val units2Group: MaterialButtonToggleGroup = binding.toggleGroupUnits2
         val languageGroup: MaterialButtonToggleGroup = binding.toggleGroupLanguage
-        val language = preferences?.getString("Lan", null)
+        val language = preferences.getString("Lan", null)
         units1Group.addOnButtonCheckedListener { _, checkedId, isChecked ->
             if (isChecked){
                 when (checkedId) {
@@ -104,9 +102,9 @@ class SettingsFragment : Fragment() {
                 addAlertDialog("pl")
         }
 
-        val selectionUnit1 = preferences?.getString("Unit", "Km")
-        val selectionUnit2 = preferences?.getString("Temp", "Cel")
-        val selectionLanguage = preferences?.getString("Lan", "en")
+        val selectionUnit1 = preferences.getString("Unit", "Km")
+        val selectionUnit2 = preferences.getString("Temp", "Cel")
+        val selectionLanguage = preferences.getString("Lan", "en")
         if(selectionUnit1 == "Mil")
             units1Group.check(milButtonId)
         else

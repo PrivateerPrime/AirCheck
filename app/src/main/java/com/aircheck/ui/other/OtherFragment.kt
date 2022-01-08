@@ -6,6 +6,7 @@ import android.content.SharedPreferences
 import android.os.Bundle
 import android.util.Log
 import android.view.*
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import com.aircheck.MainActivity
@@ -54,6 +55,24 @@ class OtherFragment : Fragment() {
         val imageWeather = binding.imageWeather
 
         val hour = preferences.getFloat("forecastOtherRange", 0F).toInt()
+        setData(hour, textWind, textWeather, textUv, textVisibility, textTime, imageWeather)
+
+        val rangeSlider: RangeSlider = binding.sliderOther
+        rangeSlider.values = listOf(preferences.getFloat("forecastOtherRange", 0F))
+        rangeSlider.addOnChangeListener {
+            _, _, _ ->
+            val values = rangeSlider.values
+            editor?.putFloat("forecastOtherRange", values[0])
+            editor?.apply()
+            val hourNew = values[0].toInt()
+            setData(hourNew, textWind, textWeather, textUv, textVisibility, textTime, imageWeather)
+        }
+
+        return binding.root
+    }
+
+    @SuppressLint("SetTextI18n")
+    private fun setData(hour: Int, textWind: TextView, textWeather: TextView, textUv: TextView, textVisibility: TextView, textTime: TextView ,imageWeather: ImageView) {
         if (preferences.getString("windSpeedOthers$hour", "NODATA") != "NODATA")
         {
             if (preferences.getString("Unit", "Km") == "Km") {
@@ -86,7 +105,7 @@ class OtherFragment : Fragment() {
                     textWeather.text = "NODATA"
             }
             "Thunderstorm" -> {
-                imageWeather.setImageResource(/* TODO należy dodać tutaj R.drawable.thunderstorm*/0)
+                imageWeather.setImageResource(R.drawable.thunder)
                 if (preferences.getString("precipitationOthers$hour", "NODATA") != "NODATA") {
                     if (preferences.getString("precipitationOthers$hour", "NODATA") != "NoPrec")
                         setWeather(textWeather, hour)
@@ -124,9 +143,10 @@ class OtherFragment : Fragment() {
         else
             textUv.text = "NODATA"
 
-        val day = preferences.getInt("day$hour", 0)
+        val day = preferences.getInt("day$hour", -1)
         var dayName = "REFRESH"
         when (day) {
+            0 -> dayName = getString(R.string.res_Saturday)
             1 -> dayName = getString(R.string.res_Sunday)
             2 -> dayName = getString(R.string.res_Monday)
             3 -> dayName = getString(R.string.res_Tuesday)
@@ -136,101 +156,6 @@ class OtherFragment : Fragment() {
             7 -> dayName = getString(R.string.res_Saturday)
         }
         textTime.text = "$dayName, ${preferences.getString("time$hour", "NODATA")}"
-
-        val rangeSlider: RangeSlider = binding.sliderOther
-        rangeSlider.values = listOf(preferences.getFloat("forecastOtherRange", 0F))
-        rangeSlider.addOnChangeListener {
-            _, _, _ ->
-            val values = rangeSlider.values
-            editor?.putFloat("forecastOtherRange", values[0])
-            editor?.apply()
-            val hourNew = values[0].toInt()
-            if (preferences.getString("windSpeedOthers$hourNew", "NODATA") != "NODATA")
-            {
-                if (preferences.getString("Unit", "Km") == "Km") {
-                    textWind.text = "${preferences.getString("windSpeedOthers$hourNew", "NODATA")} m/s"
-                    textVisibility.text = "${(preferences.getString("visibilityOthers$hourNew", "NODATA")!!.toDouble() / 1000).toBigDecimal().setScale(1,RoundingMode.HALF_EVEN)} km"
-                }
-                else {
-                    textWind.text = "${(preferences.getString("windSpeedOthers$hourNew", "NODATA")!!.toDouble() / 0.44704).toBigDecimal().setScale(2,RoundingMode.HALF_EVEN)} mph"
-                    textVisibility.text = "${(preferences.getString("visibilityOthers$hourNew", "NODATA")!!.toDouble() / 1000 / 1.60934).toBigDecimal().setScale(1, RoundingMode.HALF_EVEN)} mil"
-                }
-            }
-            else {
-                textWind.text = "NODATA"
-                textVisibility.text = "NODATA"
-            }
-
-            when (preferences.getString("weatherOthers$hourNew", "NODATA")) {
-                "Rain", "Drizzle" -> {
-                    imageWeather.setImageResource(R.drawable.rain)
-                    if (preferences.getString("precipitationOthers$hourNew", "NODATA") != "NODATA")
-                        setWeather(textWeather, hourNew)
-                    else
-                        textWeather.text = "NODATA"
-                }
-                "Snow" -> {
-                    imageWeather.setImageResource(R.drawable.snow)
-                    if (preferences.getString("precipitationOthers$hourNew", "NODATA") != "NODATA")
-                        setWeather(textWeather, hourNew)
-                    else
-                        textWeather.text = "NODATA"
-                }
-                "Thunderstorm" -> {
-                    imageWeather.setImageResource(/* TODO należy dodać tutaj R.drawable.thunderstorm*/0)
-                    if (preferences.getString("precipitationOthers$hourNew", "NODATA") != "NODATA") {
-                        if (preferences.getString("precipitationOthers$hourNew", "NODATA") != "NoPrec")
-                            setWeather(textWeather, hourNew)
-                        else
-                            textWeather.text = getString(R.string.res_no_precipitation)
-                    }
-                    else
-                        textWeather.text = "NODATA"
-                }
-                "Atmosphere", "Clouds" -> {
-                    imageWeather.setImageResource(R.drawable.ic_cloud_foreground)
-                    textWeather.text = getString(R.string.res_no_precipitation)
-                }
-                "Clear" -> {
-                    imageWeather.setImageResource(R.drawable.sunny)
-                    textWeather.text = getString(R.string.res_no_precipitation)
-                }
-                else -> {
-                    imageWeather.setImageResource(R.drawable.ic_cloud_foreground)
-                    textWeather.text = "NODATA"
-                }
-            }
-
-            val uviValue2 = preferences.getString("uviOthers$hour", "NODATA")
-            if (uviValue2 != "NODATA") {
-                val uviValueTemp2 = uviValue2!!.toDouble()
-                when {
-                    uviValueTemp2 < 3.0 -> textUv.text = uviValue.toString() + ": " + getString(R.string.res_uv_low)
-                    uviValueTemp2 < 6.0 -> textUv.text = uviValue.toString() + ": " + getString(R.string.res_uv_moderate)
-                    uviValueTemp2 < 8.0 -> textUv.text = uviValue.toString() + ": " + getString(R.string.res_uv_high)
-                    uviValueTemp2 < 11.0 -> textUv.text = uviValue.toString() + ": " + getString(R.string.res_uv_very_high)
-                    else -> textUv.text = uviValue.toString() + ": " + getString(R.string.res_uv_extreme)
-                }
-            }
-            else
-                textUv.text = "NODATA"
-
-            val day2 = preferences.getInt("day$hourNew", -1)
-            var dayName2 = "REFRESH"
-            when (day2) {
-                0 -> dayName2 = getString(R.string.res_Saturday)
-                1 -> dayName2 = getString(R.string.res_Sunday)
-                2 -> dayName2 = getString(R.string.res_Monday)
-                3 -> dayName2 = getString(R.string.res_Tuesday)
-                4 -> dayName2 = getString(R.string.res_Wednesday)
-                5 -> dayName2 = getString(R.string.res_Thursday)
-                6 -> dayName2 = getString(R.string.res_Friday)
-                7 -> dayName2 = getString(R.string.res_Saturday)
-            }
-            textTime.text = "$dayName2, ${preferences.getString("time$hourNew", "NODATA")}"
-        }
-
-        return binding.root
     }
 
     @SuppressLint("SetTextI18n")
