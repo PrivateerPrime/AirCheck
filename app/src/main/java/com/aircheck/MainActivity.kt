@@ -25,29 +25,24 @@ import java.lang.Exception
 import java.util.*
 import android.content.pm.PackageManager
 import android.location.LocationListener
+import android.widget.ImageView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityCompat
+import com.aircheck.apidata.MetricsDataClass
+import com.aircheck.apidata.PollutionDataClass
 import com.android.volley.Request
 import com.android.volley.toolbox.*
+import java.math.RoundingMode
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
     private lateinit var requestQueue: RequestQueue
-    lateinit var pollutionData: PollutionDataClass
-    lateinit var metricsData: MetricsDataClass
+    private lateinit var pollutionData: PollutionDataClass
+    private lateinit var metricsData: MetricsDataClass
     private lateinit var preferences: SharedPreferences
     private lateinit var locationManager: LocationManager
-
-
-    /*
-       TODO GPS nie działa prawidłowo na emulatorze, testować tylko na FIZYCZNEJ maszynie
-       TODO Naprawić klikanie settings (zmiana danych)
-       TODO Clean-up projektu
-    */
-
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         preferences = getPreferences(Context.MODE_PRIVATE)
@@ -79,6 +74,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    @SuppressLint("SetTextI18n")
     fun getDataHome() {
         val (location, securityError) = getLocation()
         if (location != null) {
@@ -186,16 +182,120 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    @SuppressLint("SetTextI18n")
     fun getDataOthers() {
         val (location, securityError) = getLocation()
         if (location != null) {
             Log.i("lat", location.latitude.toString()); Log.i("lng", location.longitude.toString())
+
+            val pollutionUrl = "https://api.openweathermap.org/data/2.5/air_pollution/forecast?lat=${location.latitude}&lon=${location.longitude}&appid=0320e3284b492358bcc9752cd5796e03"
+            val pollutionRequest = StringRequest(Request.Method.GET, pollutionUrl, {
+
+                    response -> Log.i("resp", response)
+                pollutionData = Gson().fromJson(response, PollutionDataClass::class.java)
+                getPollutionData()
+
+            }, {
+                    error -> Log.e("resp", error.toString())
+                AlertDialog.Builder(this)
+                    .setTitle(R.string.res_no_internet_connection_title)
+                    .setMessage(R.string.res_no_internet_connection_message)
+                    .setPositiveButton(
+                        R.string.res_accept
+                    ) { _, _ ->
+
+                    }
+                    .create()
+                    .show()
+            })
+
+
             val metricsUrl = "https://api.openweathermap.org/data/2.5/onecall?lat=${location.latitude}&lon=${location.longitude}&exclude=minutely,daily,alerts&units=metric&appid=0320e3284b492358bcc9752cd5796e03"
             val metricsRequest = StringRequest(Request.Method.GET, metricsUrl, {
                     response -> Log.i("resp", response)
                 metricsData = Gson().fromJson(response, MetricsDataClass::class.java)
                 getOthersData()
                 getMetricsData()
+
+                val hour = preferences.getFloat("forecastOtherRange", 0F).toInt()
+                val textWind = findViewById<TextView>(R.id.text_wind)
+                val textWeather = findViewById<TextView>(R.id.text_weather)
+                val textUv = findViewById<TextView>(R.id.text_uv)
+                val textVisibility = findViewById<TextView>(R.id.text_visibility)
+                val imageWeather = findViewById<ImageView>(R.id.image_weather)
+
+
+                if (preferences.getString("windSpeedOthers$hour", "NODATA") != "NODATA")
+                {
+                    if (preferences.getString("Unit", "Km") == "Km") {
+                        textWind.text = "${preferences.getString("windSpeedOthers$hour", "NODATA")} m/s"
+                        textVisibility.text = "${(preferences.getString("visibilityOthers$hour", "NODATA")!!.toDouble() / 1000).toBigDecimal().setScale(1,
+                            RoundingMode.HALF_EVEN)} km"
+                    }
+                    else {
+                        textWind.text = "${(preferences.getString("windSpeedOthers$hour", "NODATA")!!.toDouble() / 0.44704).toBigDecimal().setScale(2,
+                            RoundingMode.HALF_EVEN)} mph"
+                        textVisibility.text = "${(preferences.getString("visibilityOthers$hour", "NODATA")!!.toDouble() / 1000 / 1.60934).toBigDecimal().setScale(1, RoundingMode.HALF_EVEN)} mil"
+                    }
+                }
+                else {
+                    textWind.text = "NODATA"
+                    textVisibility.text = "NODATA"
+                }
+
+                when (preferences.getString("weatherOthers$hour", "NODATA")) {
+                    "Rain", "Drizzle" -> {
+                        imageWeather.setImageResource(R.drawable.rain)
+                        if (preferences.getString("precipitationOthers$hour", "NODATA") != "NODATA")
+                            setWeather(textWeather, hour)
+                        else
+                            textWeather.text = "NODATA"
+                    }
+                    "Snow" -> {
+                        imageWeather.setImageResource(R.drawable.snow)
+                        if (preferences.getString("precipitationOthers$hour", "NODATA") != "NODATA")
+                            setWeather(textWeather, hour)
+                        else
+                            textWeather.text = "NODATA"
+                    }
+                    "Thunderstorm" -> {
+                        imageWeather.setImageResource(R.drawable.thunder)
+                        if (preferences.getString("precipitationOthers$hour", "NODATA") != "NODATA") {
+                            if (preferences.getString("precipitationOthers$hour", "NODATA") != "NoPrec")
+                                setWeather(textWeather, hour)
+                            else
+                                textWeather.text = getString(R.string.res_no_precipitation)
+                        }
+                        else
+                            textWeather.text = "NODATA"
+                    }
+                    "Atmosphere", "Clouds" -> {
+                        imageWeather.setImageResource(R.drawable.ic_cloud_foreground)
+                        textWeather.text = getString(R.string.res_no_precipitation)
+                    }
+                    "Clear" -> {
+                        imageWeather.setImageResource(R.drawable.sunny)
+                        textWeather.text = getString(R.string.res_no_precipitation)
+                    }
+                    else -> {
+                        imageWeather.setImageResource(R.drawable.ic_cloud_foreground)
+                        textWeather.text = "NODATA"
+                    }
+                }
+
+                val uviValue = preferences.getString("uviOthers$hour", "NODATA")
+                if (uviValue != "NODATA") {
+                    val uviValueTemp = uviValue!!.toDouble()
+                    when {
+                        uviValueTemp < 3.0 -> textUv.text = uviValue.toString() + ": " + getString(R.string.res_uv_low)
+                        uviValueTemp < 6.0 -> textUv.text = uviValue.toString() + ": " + getString(R.string.res_uv_moderate)
+                        uviValueTemp < 8.0 -> textUv.text = uviValue.toString() + ": " + getString(R.string.res_uv_high)
+                        uviValueTemp < 11.0 -> textUv.text = uviValue.toString() + ": " + getString(R.string.res_uv_very_high)
+                        else -> textUv.text = uviValue.toString() + ": " + getString(R.string.res_uv_extreme)
+                    }
+                }
+                else
+                    textUv.text = "NODATA"
 
                 Toast.makeText(applicationContext, getString(R.string.res_sync_correct), Toast.LENGTH_SHORT).show()
             }, {
@@ -212,6 +312,7 @@ class MainActivity : AppCompatActivity() {
 
             try {
                 requestQueue.add(metricsRequest)
+                requestQueue.add(pollutionRequest)
                 val (dayName, timeString) = getTime()
                 findViewById<TextView>(R.id.text_other_time).text = "$dayName, $timeString"
             }
@@ -249,16 +350,22 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    @SuppressLint("SetTextI18n")
+    private fun setWeather(textWeather: TextView, hourNew: Int) {
+        if (preferences.getString("Unit", "Km") == "Km")
+            textWeather.text = getString(R.string.res_precipitation) +
+                    preferences.getString("precipitationOthers$hourNew", "NODATA") +
+                    " mm"
+        else
+            textWeather.text = getString(R.string.res_precipitation) +
+                    (preferences.getString("precipitationOthers$hourNew", "NODATA")!!
+                        .toDouble() / 25.4).toString() +
+                    " in"
+    }
+
     private fun getOthersData() {
         val editor = preferences.edit()
         val uviValue = metricsData.current.uvi
-        val threadLevel = when {
-            uviValue < 3.0 -> getString(R.string.res_uv_low)
-            uviValue < 6.0 -> getString(R.string.res_uv_moderate)
-            uviValue < 8.0 -> getString(R.string.res_uv_high)
-            uviValue < 11.0 -> getString(R.string.res_uv_very_high)
-            else -> getString(R.string.res_uv_extreme)
-        }
         val visibilityValue = metricsData.current.visibility
         val windSpeedValue = metricsData.current.wind_speed
         val weatherValue = metricsData.current.weather[0].main
