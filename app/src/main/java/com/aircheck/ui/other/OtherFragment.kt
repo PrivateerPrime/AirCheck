@@ -162,12 +162,14 @@ class OtherFragment : Fragment() {
     private fun setWeather(textWeather: TextView, hourNew: Int) {
         if (preferences.getString("Unit", "Km") == "Km")
             textWeather.text = getString(R.string.res_precipitation) +
+                    " " +
                     preferences.getString("precipitationOthers$hourNew", "NODATA") +
                     " mm"
         else
             textWeather.text = getString(R.string.res_precipitation) +
+                    " " +
                     (preferences.getString("precipitationOthers$hourNew", "NODATA")!!
-                        .toDouble() / 25.4).toString() +
+                        .toDouble() / 25.4).toString().toBigDecimal().setScale(3, RoundingMode.HALF_EVEN) +
                     " in"
     }
 

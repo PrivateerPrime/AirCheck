@@ -35,6 +35,6 @@
     <string name="res_uv_high">Wysokie zagrożenie</string>
     <string name="res_uv_very_high">Bardzo duże zagrożenie</string>
     <string name="res_uv_extreme">Ekstremalne zagrożenie</string>
-    <string name="res_precipitation">"Poziom opadów: "</string>
+    <string name="res_precipitation">Poziom opadów:</string>
     <string name="res_no_precipitation">Brak opadów</string>
 </resources>

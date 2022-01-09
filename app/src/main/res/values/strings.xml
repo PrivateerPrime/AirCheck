@@ -47,6 +47,6 @@
     <string name="res_uv_high">High risk</string>
     <string name="res_uv_very_high">Very high risk</string>
     <string name="res_uv_extreme">Extreme risk</string>
-    <string name="res_precipitation">Precipitation volume: </string>
+    <string name="res_precipitation">Precipitation volume:</string>
     <string name="res_no_precipitation">No precipitation</string>
 </resources>
