@@ -86,7 +86,7 @@ class MainActivity : AppCompatActivity() {
                 pollutionData = Gson().fromJson(response, PollutionDataClass::class.java)
                 getPollutionData()
 
-                val hour = preferences.getFloat("forecastRange", 0F).toInt()
+                val hour = preferences.getFloat("forecastHomeRange", 0F).toInt()
                 val pollution = preferences.getString("pollutionMain$hour", "NODATA")
                 findViewById<TextView>(R.id.text_pollution).text = pollution
 
@@ -111,7 +111,7 @@ class MainActivity : AppCompatActivity() {
                 getMetricsData()
                 getOthersData()
 
-                val hour = preferences.getFloat("forecastRange", 0F).toInt()
+                val hour = preferences.getFloat("forecastHomeRange", 0F).toInt()
                 var temperature = preferences.getString("temperatureMain$hour", "0.0")?.toFloat()
                 if (preferences.getString("Temp", "Cel") == "Fah") {
                     temperature = ((temperature!! * 9.0/5.0) + 32.0).toFloat()
@@ -145,7 +145,7 @@ class MainActivity : AppCompatActivity() {
             try {
                 requestQueue.add(pollutionRequest)
                 requestQueue.add(metricsRequest)
-                val (dayName, timeString) = getTime()
+                val (dayName, timeString) = getTime(1)
                 findViewById<TextView>(R.id.text_home_time).text = "$dayName, $timeString"
             }
             catch (e: Exception) {
@@ -313,7 +313,7 @@ class MainActivity : AppCompatActivity() {
             try {
                 requestQueue.add(metricsRequest)
                 requestQueue.add(pollutionRequest)
-                val (dayName, timeString) = getTime()
+                val (dayName, timeString) = getTime(2)
                 findViewById<TextView>(R.id.text_other_time).text = "$dayName, $timeString"
             }
             catch (e: Exception) {
@@ -445,7 +445,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     @SuppressLint("SetTextI18n")
-    private fun getTime(): Pair<String, String?> {
+    private fun getTime(mode: Int): Pair<String, String?> {
         val cal = Calendar.getInstance()
         val editor = preferences.edit()
         var hour = cal.get(Calendar.HOUR_OF_DAY).toString()
@@ -481,7 +481,11 @@ class MainActivity : AppCompatActivity() {
             editor.putInt("day${i}", dayForecast)
             editor.apply()
         }
-        val hourSlider = preferences.getFloat("forecastRange", 0F).toInt()
+        var hourSlider = 0
+        if (mode == 1)
+            hourSlider = preferences.getFloat("forecastHomeRange", 0F).toInt()
+        else if (mode == 2)
+            hourSlider = preferences.getFloat("forecastOtherRange", 0F).toInt()
         val timeString = preferences.getString("time$hourSlider", "NODATA")
         if ((cal.get(Calendar.HOUR_OF_DAY) + hourSlider) >= 24) {
             val dayForecast = preferences.getInt("day${hourSlider}", 0)
