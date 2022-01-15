@@ -68,8 +68,215 @@ class HomeFragment : Fragment() {
         return binding.root
     }
 
+    private fun setTestData(testNumber: Int){
+        var pollution: String? = ""
+        var temperature: String? = ""
+        var humidity: String? = ""
+        var pressure: String? = ""
+        var day = 0
+        var hour: String? = ""
+
+        when(testNumber){
+            1 -> { //Small values
+                pollution = "0"
+                temperature = "0"
+                humidity = "0"
+                pressure = "0"
+                day = 1
+                hour = "00:00"
+            }
+            2 -> { //Big values
+                pollution = "1000"
+                temperature = "1000"
+                humidity = "1000"
+                pressure = "1000"
+                day = 1
+                hour = "00:00"
+            }
+            3 -> { //Extremely big values
+                pollution = "100000000000"
+                temperature = "100000000000"
+                humidity = "100000000000"
+                pressure = "100000000000"
+                day = 1
+                hour = "00:00"
+            }
+            4 -> { //Out of bounds day values
+                pollution = "0"
+                temperature = "0"
+                humidity = "0"
+                pressure = "0"
+                day = -10
+                hour = "00:00"
+            }
+            5 -> { //Out of bounds day values pt. 2
+                pollution = "0"
+                temperature = "0"
+                humidity = "0"
+                pressure = "0"
+                day = 100
+                hour = "00:00"
+            }
+            6 -> { //Out of bounds hour values
+                pollution = "0"
+                temperature = "0"
+                humidity = "0"
+                pressure = "0"
+                day = 1
+                hour = "-1:00"
+            }
+            7 -> { //Out of bounds hour values pt. 2
+                pollution = "0"
+                temperature = "0"
+                humidity = "0"
+                pressure = "0"
+                day = 1
+                hour = "30:70"
+            }
+            8 -> { //Out of bounds hour values pt. 3
+                pollution = "0"
+                temperature = "0"
+                humidity = "0"
+                pressure = "0"
+                day = 1
+                hour = "100:100"
+            }
+            9 -> { //Nonnumerical values
+                pollution = "abc"
+                temperature = "abc"
+                humidity = "abc"
+                pressure = "abc"
+                day = 1
+                hour = "00:00"
+            }
+            10 -> { //Nonnumerical hour values
+                pollution = "0"
+                temperature = "0"
+                humidity = "0"
+                pressure = "0"
+                day = 1
+                hour = "aa:bb"
+            }
+            11 -> { //Empty data
+                pollution = ""
+                temperature = ""
+                humidity = ""
+                pressure = ""
+                day = 1
+                hour = "00:00"
+            }
+            12 -> { //Empty hour data
+                pollution = "0"
+                temperature = "0"
+                humidity = "0"
+                pressure = "0"
+                day = 1
+                hour = ""
+            }
+            13 -> { //Null values
+                pollution = null
+                temperature = null
+                humidity = null
+                pressure = null
+                day = 1
+                hour = "00:00"
+            }
+            14 -> { //Null hour values
+                pollution = "0"
+                temperature = "0"
+                humidity = "0"
+                pressure = "0"
+                day = 1
+                hour = null
+            }
+            15 -> { //Special characters - newlines
+                pollution = "0\n0"
+                temperature = "0\n0"
+                humidity = "0\n0"
+                pressure = "0\n0"
+                day = 1
+                hour = "00:00"
+            }
+            16 -> { //Special characters - whitespaces
+                pollution = "0\t0\b0"
+                temperature = "0\t0\b0"
+                humidity = "0\t0\b0"
+                pressure = "0\t0\b0"
+                day = 1
+                hour = "00:00"
+            }
+            17 -> { //Special hour characters - newlines
+                pollution = "0"
+                temperature = "0"
+                humidity = "0"
+                pressure = "0"
+                day = 1
+                hour = "0\n0:0\n0"
+            }
+            18 -> { //Special hour characters - whitespaces
+                pollution = "0"
+                temperature = "0"
+                humidity = "0"
+                pressure = "0"
+                day = 1
+                hour = "0\t0:0\b0"
+            }
+            19 -> { //Float values
+                pollution = "25.4"
+                temperature = "14.9"
+                humidity = "38.1"
+                pressure = "76.2"
+                day = 1
+                hour = "00:00"
+            }
+            20 -> { //Long fractional parts
+                pollution = "2.11223344"
+                temperature = "2.11223344"
+                humidity = "2.11223344"
+                pressure = "2.11223344"
+                day = 1
+                hour = "00:00"
+            }
+            21 -> { //Regular values
+                pollution = "56.7"
+                temperature = "12"
+                humidity = "95.71"
+                pressure = "1007.4"
+                day = 1
+                hour = "00:00"
+            }
+            22 -> { //Regular time values - wednesday afternoon
+                pollution = "0"
+                temperature = "0"
+                humidity = "0"
+                pressure = "0"
+                day = 4
+                hour = "16:37"
+            }
+            23 -> { //Regular time values - saturday night
+                pollution = "0"
+                temperature = "0"
+                humidity = "0"
+                pressure = "0"
+                day = 7
+                hour = "23:12"
+            }
+        }
+
+        val editor = preferences.edit()
+
+        editor?.putString("pollutionMain$testNumber", pollution)
+        editor?.putString("temperatureMain$testNumber", temperature)
+        editor?.putString("humidityMain$testNumber", humidity)
+        editor?.putString("pressureMain$testNumber", pressure)
+        editor?.putInt("day$testNumber", day)
+        editor?.putString("time$testNumber", hour)
+        editor?.apply()
+    }
+
     @SuppressLint("SetTextI18n")
     private fun setData(hour: Int, textPollution: TextView, textTemperature: TextView, textHumidity: TextView, textPressure: TextView, textTime: TextView) {
+        setTestData(hour)
         textPollution.text = preferences.getString("pollutionMain$hour", "NODATA")
         try {
             var temperature = preferences.getString("temperatureMain$hour", "NODATA")?.toFloat()
