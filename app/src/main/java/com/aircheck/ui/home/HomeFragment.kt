@@ -283,7 +283,7 @@ class HomeFragment : Fragment() {
         else
             textPollution.text = pollutionVal.toString()
         //textPollution.text = preferences.getString("pollutionMain$hour", "NODATA")
-        try {3
+        try {
             var temperature = preferences.getString("temperatureMain$hour", "NODATA")?.toFloat()
             if (preferences.getString("Temp", "Cel") == "Fah") {
                 temperature = ((temperature!! * 9.0/5.0) + 32.0).toFloat()
