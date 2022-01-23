@@ -211,7 +211,7 @@ class HomeFragment : Fragment() {
                 humidity = "0"
                 pressure = "0"
                 day = 1
-                hour = "0\n0:0\n0"
+                hour = "00:00"
             }
             18 -> { //Special hour characters - whitespaces
                 pollution = "0"
@@ -277,8 +277,13 @@ class HomeFragment : Fragment() {
     @SuppressLint("SetTextI18n")
     private fun setData(hour: Int, textPollution: TextView, textTemperature: TextView, textHumidity: TextView, textPressure: TextView, textTime: TextView) {
         setTestData(hour)
-        textPollution.text = preferences.getString("pollutionMain$hour", "NODATA")
-        try {
+        val pollutionVal = preferences.getString("pollutionMain$hour", "NODATA")?.toFloatOrNull()
+        if(pollutionVal == null)
+            textPollution.text = "NODATA"
+        else
+            textPollution.text = pollutionVal.toString()
+        //textPollution.text = preferences.getString("pollutionMain$hour", "NODATA")
+        try {3
             var temperature = preferences.getString("temperatureMain$hour", "NODATA")?.toFloat()
             if (preferences.getString("Temp", "Cel") == "Fah") {
                 temperature = ((temperature!! * 9.0/5.0) + 32.0).toFloat()
